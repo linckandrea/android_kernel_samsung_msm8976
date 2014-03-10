@@ -1979,7 +1979,9 @@ extern int freeze_super(struct super_block *super);
 extern int thaw_super(struct super_block *super);
 extern bool our_mnt(struct vfsmount *mnt);
 
+
 extern int current_umask(void);
+
 
 static inline struct inode *file_inode(struct file *f)
 {
@@ -2319,6 +2321,7 @@ static inline bool execute_ok(struct inode *inode)
 {
 	return (inode->i_mode & S_IXUGO) || S_ISDIR(inode->i_mode);
 }
+
 
 static inline void file_start_write(struct file *file)
 {
@@ -2793,5 +2796,6 @@ static inline void inode_has_no_xattr(struct inode *inode)
 	if (!is_sxid(inode->i_mode) && (inode->i_sb->s_flags & MS_NOSEC))
 		inode->i_flags |= S_NOSEC;
 }
+
 
 #endif /* _LINUX_FS_H */
