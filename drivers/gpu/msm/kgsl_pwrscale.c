@@ -854,6 +854,13 @@ int kgsl_pwrscale_init(struct device *dev, const char *governor)
 	if (pdata->popp_enable)
 		set_bit(POPP_ON, &pwrscale->popp_state);
 
+	/*
+	 * Enable POPP feature if target supports it, by default
+	 * it is disabled.
+	 */
+	if (pdata->popp_enable)
+		set_bit(POPP_ON, &pwrscale->popp_state);
+
 	return 0;
 }
 EXPORT_SYMBOL(kgsl_pwrscale_init);
