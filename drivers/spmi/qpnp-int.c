@@ -665,7 +665,7 @@ static int __qpnpint_handle_irq(struct spmi_controller *spmi_ctrl,
 			sprintf(last_resume_kernel_reason + last_resume_kernel_reason_len,
 			"%d,%lu,%s|", irq, hwirq, name);
 #else
-		pr_warn("%d triggered [0x%01x, 0x%02x,0x%01x] %s\n",
+		pr_debug("%d triggered [0x%01x, 0x%02x,0x%01x] %s\n",
 				irq, spec->slave, spec->per, spec->irq, name);
 #endif
 	} else {
