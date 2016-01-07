@@ -1920,6 +1920,8 @@ int fcntl_setlk(unsigned int fd, struct file *filp, unsigned int cmd,
 		goto out;
 	}
 
+
+
 	error = flock_to_posix_lock(filp, file_lock, &flock);
 	if (error)
 		goto out;
@@ -1977,7 +1979,7 @@ int fcntl_setlk(unsigned int fd, struct file *filp, unsigned int cmd,
 	if (!error && file_lock->fl_type != F_UNLCK) {
 		/*
 		 * We need that spin_lock here - it prevents reordering between
-		 * update of inode->i_flock and check for it done in
+		 * update of inode->i_flock and check for it done in close().
 		 * close(). rcu_read_lock() wouldn't do.
 		 */
 		spin_lock(&current->files->file_lock);
@@ -2074,6 +2076,8 @@ int fcntl_setlk64(unsigned int fd, struct file *filp, unsigned int cmd,
 		goto out;
 	}
 
+
+
 	error = flock64_to_posix_lock(filp, file_lock, &flock);
 	if (error)
 		goto out;
@@ -2131,7 +2135,7 @@ int fcntl_setlk64(unsigned int fd, struct file *filp, unsigned int cmd,
 	if (!error && file_lock->fl_type != F_UNLCK) {
 		/*
 		 * We need that spin_lock here - it prevents reordering between
-		 * update of inode->i_flock and check for it done in
+		 * update of i_flctx->flc_posix and check for it done in
 		 * close(). rcu_read_lock() wouldn't do.
 		 */
 		spin_lock(&current->files->file_lock);
