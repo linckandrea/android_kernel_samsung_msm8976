@@ -705,6 +705,9 @@ config MSM_VSENS
 
 	  Say yes to support these devices.
 
+config STATE_NOTIFIER
+        bool "State Notifier"
+
 comment "Samsung Debugging Feature"
 menuconfig SEC_DEBUG
 	bool "Samsung TN Ramdump Feature"
