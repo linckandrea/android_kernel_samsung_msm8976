@@ -1697,7 +1697,7 @@ static int sx9310_remove(struct i2c_client *client)
 	if (atomic_read(&data->enable) == ON)
 		sx9310_set_enable(data, OFF);
 		
-		sx9310_set_mode(data, SX9310_MODE_SLEEP);
+	sx9310_set_mode(data, SX9310_MODE_SLEEP);
 
 	cancel_delayed_work_sync(&data->init_work);
 	cancel_delayed_work_sync(&data->irq_work);
