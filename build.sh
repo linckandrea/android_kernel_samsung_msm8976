@@ -22,3 +22,4 @@ echo
 echo "Build The Good Stuff"
 echo 
 make O=out -j$(nproc --all)
+#make O=out -j1
