@@ -325,3 +325,8 @@ config SEC_PMIC_DUMP
 	  Sends PMIC Register list to RPM and gets the PMIC
 	  Register Dump.
 
+config	BOEFFLA_WL_BLOCKER
+	  bool "Boeffla generic wakelock blocker driver"
+	  depends on PM
+	  default N
+
