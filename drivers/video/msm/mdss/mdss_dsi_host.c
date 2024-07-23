@@ -41,11 +41,6 @@
 
 #define FIFO_STATUS	0x0C
 #define LANE_STATUS	0xA8
-<<<<<<< HEAD
-static int fifo_error_dsi_dumpreg_done = 0;	//take selective dsi dump during fifo error -- QC case 02370966
-static int clk_error_dsi_dumpreg_done = 0;	//take selective dsi dump during clk error -- QC case 02378877
-=======
->>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 
 struct mdss_dsi_ctrl_pdata *ctrl_list[DSI_CTRL_MAX];
 
@@ -443,15 +438,12 @@ void mdss_dsi_host_init(struct mdss_panel_data *pdata)
 	MIPI_OUTP((ctrl_pdata->ctrl_base) + 0x11c,
 					0x23f); /* DSI_CLK_CTRL */
 
-<<<<<<< HEAD
 #if defined(CONFIG_FB_MSM_MDSS_SAMSUNG)
 	vdd = check_valid_ctrl(ctrl_pdata);
 	if (!IS_ERR_OR_NULL(vdd) && vdd->dtsi_data[ctrl_pdata->ndx].samsung_lp11_init)
 		MIPI_OUTP((ctrl_pdata->ctrl_base) + 0xac,0);/* LP11 */
 #endif
 
-=======
->>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 	/* Reset DSI_LANE_CTRL */
 	if (!ctrl_pdata->mmss_clamp)
 		MIPI_OUTP((ctrl_pdata->ctrl_base) + 0x00ac, 0x0);
@@ -2924,7 +2916,6 @@ void mdss_dsi_fifo_status(struct mdss_dsi_ctrl_pdata *ctrl)
 			/* Ignore FIFO EMPTY when overflow happens */
 			status = status & 0xeeeeffff;
 		}
-<<<<<<< HEAD
 		if (status & 0x88880000) {  /* DLNx_HS_FIFO_UNDERFLOW */
 #if defined(CONFIG_FB_MSM_MDSS_SAMSUNG)
 			MDSS_XLOG(DSI_EV_DLNx_FIFO_UNDERFLOW);
@@ -2935,11 +2926,6 @@ void mdss_dsi_fifo_status(struct mdss_dsi_ctrl_pdata *ctrl)
 #if defined(CONFIG_FB_MSM_MDSS_SAMSUNG)
 			MDSS_XLOG(DSI_EV_DSI_FIFO_EMPTY);
 #endif
-=======
-		if (status & 0x88880000)  /* DLNx_HS_FIFO_UNDERFLOW */
-			dsi_send_events(ctrl, DSI_EV_DLNx_FIFO_UNDERFLOW, 0);
-		if (status & 0x11110000) /* DLN_FIFO_EMPTY */
->>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 			dsi_send_events(ctrl, DSI_EV_DSI_FIFO_EMPTY, 0);
 		}
 	}
