@@ -375,18 +375,9 @@ int crypto_init_shash_ops_async(struct crypto_tfm *tfm)
 	crt->final = shash_async_final;
 	crt->finup = shash_async_finup;
 	crt->digest = shash_async_digest;
-<<<<<<< HEAD
-	if (crypto_shash_alg_has_setkey(alg))
-		crt->setkey = shash_async_setkey;
-
-	crypto_ahash_set_flags(crt, crypto_shash_get_flags(shash) &
-				    CRYPTO_TFM_NEED_KEY);
-=======
 	crt->setkey = shash_async_setkey;
 
 	crt->has_setkey = alg->setkey != shash_no_setkey;
->>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
-
 	if (alg->export)
 		crt->export = shash_async_export;
 	if (alg->import)

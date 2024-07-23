@@ -474,11 +474,7 @@ static int crypto_ahash_init_tfm(struct crypto_tfm *tfm)
 
 	if (alg->setkey) {
 		hash->setkey = alg->setkey;
-<<<<<<< HEAD
-		ahash_set_needkey(hash);
-=======
 		hash->has_setkey = true;
->>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 	}
 	if (alg->export)
 		hash->export = alg->export;
