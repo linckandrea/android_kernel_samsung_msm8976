@@ -573,6 +573,8 @@ static int cpu_power_select(struct cpuidle_device *dev,
 
 	idx_restrict = cpu->nlevels + 1;
 
+	idx_restrict = cpu->nlevels + 1;
+
 	next_event_us = (uint32_t)(ktime_to_us(get_next_event_time(dev->cpu)));
 
 	for (i = 0; i < cpu->nlevels; i++) {

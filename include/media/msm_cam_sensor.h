@@ -1,17 +1,10 @@
 #ifndef __LINUX_MSM_CAM_SENSOR_H
 #define __LINUX_MSM_CAM_SENSOR_H
 
-#ifdef MSM_CAMERA_BIONIC
-#include <sys/types.h>
-#endif
+#include <uapi/media/msm_cam_sensor.h>
 
-#include <linux/v4l2-mediabus.h>
-#include <media/msm_camsensor_sdk.h>
-
-#include <linux/types.h>
-#include <linux/i2c.h>
-#ifdef CONFIG_COMPAT
 #include <linux/compat.h>
+<<<<<<< HEAD
 #endif
 
 #define I2C_SEQ_REG_SETTING_MAX   5
@@ -323,8 +316,11 @@ struct msm_eeprom_cfg_data {
 		struct msm_eeprom_info_t eeprom_info;
 	} cfg;
 };
+=======
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 
 #ifdef CONFIG_COMPAT
+
 struct msm_sensor_power_setting32 {
 	enum msm_sensor_power_seq_type_t seq_type;
 	uint16_t seq_val;
@@ -372,6 +368,7 @@ struct msm_camera_csid_params32 {
 	uint8_t phy_sel;
 	uint32_t csi_clk;
 	struct msm_camera_csid_lut_params32 lut_params;
+	uint8_t csi_3p_sel;
 };
 
 struct msm_camera_csi2_params32 {
@@ -429,8 +426,8 @@ struct msm_camera_i2c_seq_reg_setting32 {
 	enum msm_camera_i2c_reg_addr_type addr_type;
 	uint16_t delay;
 };
-#endif
 
+<<<<<<< HEAD
 enum msm_sensor_cfg_type_t {
 	CFG_SET_SLAVE_INFO,
 	CFG_SLAVE_READ_I2C,
@@ -705,6 +702,8 @@ struct sensor_init_cfg_data {
 	_IOWR('V', BASE_VIDIOC_PRIVATE + 13, struct msm_flash_cfg_data_t)
 
 #ifdef CONFIG_COMPAT
+=======
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 struct msm_camera_i2c_reg_setting32 {
 	compat_uptr_t reg_setting;
 	uint16_t size;
@@ -712,6 +711,11 @@ struct msm_camera_i2c_reg_setting32 {
 	enum msm_camera_i2c_data_type data_type;
 	uint16_t delay;
 	enum msm_camera_qup_i2c_write_batch_t qup_i2c_batch;
+};
+
+struct msm_camera_i2c_array_write_config32 {
+	struct msm_camera_i2c_reg_setting32 conf_array;
+	uint16_t slave_addr;
 };
 
 struct msm_actuator_tuning_params_t32 {
@@ -727,14 +731,12 @@ struct msm_actuator_params_t32 {
 	uint8_t reg_tbl_size;
 	uint16_t data_size;
 	uint16_t init_setting_size;
-	uint16_t deinit_setting_size;
 	uint32_t i2c_addr;
 	enum i2c_freq_mode_t i2c_freq_mode;
-	enum msm_actuator_addr_type i2c_addr_type;
-	enum msm_actuator_data_type i2c_data_type;
+	enum msm_camera_i2c_reg_addr_type i2c_addr_type;
+	enum msm_camera_i2c_data_type i2c_data_type;
 	compat_uptr_t reg_tbl_params;
 	compat_uptr_t init_settings;
-	compat_uptr_t deinit_settings;
 	struct park_lens_data_t park_lens;
 };
 
@@ -859,4 +861,5 @@ struct msm_flash_cfg_data_t32 {
 	_IOWR('V', BASE_VIDIOC_PRIVATE + 13, struct msm_flash_cfg_data_t32)
 #endif
 
-#endif /* __LINUX_MSM_CAM_SENSOR_H */
+#endif
+

@@ -1772,11 +1772,17 @@ struct sdhci_msm_pltfm_data *sdhci_msm_populate_pdata(struct device *dev,
 	if (of_get_property(np, "qcom,broken-pwr-cycle-host", NULL))
 		pdata->broken_pwr_cycle_host = true;
 
+	if (of_get_property(np, "qcom,broken-pwr-cycle-host", NULL))
+		pdata->broken_pwr_cycle_host = true;
+
 	if (of_get_property(np, "qcom,modified-dynamic-qos", NULL))
 		pdata->use_mod_dynamic_qos = true;
 
 	if (of_get_property(np, "qcom,nonhotplug", NULL))
 		pdata->nonhotplug = true;
+
+	pdata->largeaddressbus =
+		of_property_read_bool(np, "qcom,large-address-bus");
 
 	if (of_property_read_bool(np, "qcom,no-1p8v"))
 		pdata->no_1p8v = true;
@@ -2726,7 +2732,24 @@ out:
 	return rc;
 }
 
+static void sdhci_msm_disable_controller_clock(struct sdhci_host *host)
+{
+	struct sdhci_pltfm_host *pltfm_host = sdhci_priv(host);
+	struct sdhci_msm_host *msm_host = pltfm_host->priv;
 
+	if (atomic_read(&msm_host->controller_clock)) {
+		if (!IS_ERR(msm_host->clk))
+			clk_disable_unprepare(msm_host->clk);
+		if (!IS_ERR(msm_host->pclk))
+			clk_disable_unprepare(msm_host->pclk);
+		if (!IS_ERR(msm_host->ice_clk))
+			clk_disable_unprepare(msm_host->ice_clk);
+		sdhci_msm_bus_voting(host, 0);
+		atomic_set(&msm_host->controller_clock, 0);
+		pr_debug("%s: %s: disabled controller clock\n",
+			mmc_hostname(host->mmc), __func__);
+	}
+}
 
 static int sdhci_msm_prepare_clocks(struct sdhci_host *host, bool enable)
 {
@@ -3212,6 +3235,114 @@ void sdhci_msm_reset_enter(struct sdhci_host *host, u8 mask)
 	if (msm_host->ice.pdev)
 		writel_relaxed(1, host->ioaddr + CORE_VENDOR_SPEC_ICE_CTRL);
 }
+
+static ssize_t
+show_mmc_manual_gc(struct device *dev,
+		struct device_attribute *attr, char *buf)
+{
+	struct sdhci_host *host = dev_get_drvdata(dev);
+
+	if (mmc_card_support_auto_bkops(host->mmc->card))
+		return scnprintf(buf, PAGE_SIZE, "%s", "disabled\n");
+
+	return scnprintf(buf, PAGE_SIZE, "%s", "disabled\n");
+}
+
+static ssize_t
+store_mmc_manual_gc(struct device *dev,
+		struct device_attribute *attr, const char *buf, size_t count)
+{
+	struct sdhci_host *host = dev_get_drvdata(dev);
+
+	uint32_t value;
+	bool enable;
+	int ret;
+
+	ret = kstrtou32(buf, 0, &value);
+	if (ret)
+		goto out;
+	enable = !!value;
+
+	if (mmc_card_support_auto_bkops(host->mmc->card))
+		return count;
+
+out:
+	return count;
+}
+
+static ssize_t
+show_eol(struct device *dev,
+		struct device_attribute *attr, char *buf)
+{
+	struct sdhci_host *host = dev_get_drvdata(dev);
+
+	if (!host->mmc || !host->mmc->card)
+		return snprintf(buf, PAGE_SIZE, "0x0\n");
+
+	return snprintf(buf, PAGE_SIZE, "0x%02x\n",
+		host->mmc->card->ext_csd.pre_eol_info);
+}
+
+static ssize_t
+show_length(struct device *dev,
+		struct device_attribute *attr, char *buf)
+{
+	return snprintf(buf, PAGE_SIZE, "0x25\n");
+}
+
+static ssize_t
+show_type(struct device *dev,
+		struct device_attribute *attr, char *buf)
+{
+	return snprintf(buf, PAGE_SIZE, "0x9\n");
+}
+
+static ssize_t
+show_lifetimeA(struct device *dev,
+		struct device_attribute *attr, char *buf)
+{
+	struct sdhci_host *host = dev_get_drvdata(dev);
+
+	if (!host->mmc || !host->mmc->card)
+		return snprintf(buf, PAGE_SIZE, "0x0\n");
+
+	return snprintf(buf, PAGE_SIZE, "0x%02x\n",
+		host->mmc->card->ext_csd.device_life_time_est_typ_a);
+}
+
+static ssize_t
+show_lifetimeB(struct device *dev,
+		struct device_attribute *attr, char *buf)
+{
+	struct sdhci_host *host = dev_get_drvdata(dev);
+
+	if (!host->mmc || !host->mmc->card)
+		return snprintf(buf, PAGE_SIZE, "0x0\n");
+
+	return snprintf(buf, PAGE_SIZE, "0x%02x\n",
+		host->mmc->card->ext_csd.device_life_time_est_typ_b);
+}
+
+DEVICE_ATTR(eol, S_IRUGO, show_eol, NULL);
+DEVICE_ATTR(length, S_IRUGO, show_length, NULL);
+DEVICE_ATTR(type, S_IRUGO, show_type, NULL);
+DEVICE_ATTR(lifetimeA, S_IRUGO, show_lifetimeA, NULL);
+DEVICE_ATTR(lifetimeB, S_IRUGO, show_lifetimeB, NULL);
+
+static struct attribute *mmc_health_attrs[] = {
+	&dev_attr_eol.attr,
+	&dev_attr_length.attr,
+	&dev_attr_type.attr,
+	&dev_attr_lifetimeA.attr,
+	&dev_attr_lifetimeB.attr,
+	NULL,
+};
+
+static struct attribute_group mmc_health_attr_grp = {
+	.name = "health",
+	.attrs = mmc_health_attrs,
+};
+
 /*
  * sdhci_msm_notify_pm_status - notification from mmc_host
  * layer to msm platform about PM state of mmc_host device.
@@ -3417,8 +3548,6 @@ static void sdhci_set_default_hw_caps(struct sdhci_msm_host *msm_host,
 			caps |= CORE_1_8V_SUPPORT;
 		if (msm_host->pdata->mmc_bus_width == MMC_CAP_8_BIT_DATA)
 			caps |= CORE_8_BIT_SUPPORT;
-		writel_relaxed(caps, host->ioaddr +
-				CORE_VENDOR_SPEC_CAPABILITIES0);
 	}
 
 	/*
@@ -3459,10 +3588,10 @@ static void sdhci_set_default_hw_caps(struct sdhci_msm_host *msm_host,
 	/*
 	 * Mask 64-bit support for controller with 32-bit address bus so that
 	 * smaller descriptor size will be used and improve memory consumption.
-	 * In case bus addressing ever changes, controller version should be
-	 * used in order to decide whether or not to mask 64-bit support.
 	 */
-	caps &= ~CORE_SYS_BUS_SUPPORT_64_BIT;
+	if (!msm_host->pdata->largeaddressbus)
+		caps &= ~CORE_SYS_BUS_SUPPORT_64_BIT;
+
 	writel_relaxed(caps, host->ioaddr + CORE_VENDOR_SPEC_CAPABILITIES0);
 	/* keep track of the value in SDHCI_CAPABILITIES */
 	msm_host->caps_0 = caps;
@@ -3619,6 +3748,7 @@ static int sdhci_msm_probe(struct platform_device *pdev)
 	u16 host_version;
 	u32 pwr, irq_status, irq_ctl;
 	unsigned long flags;
+	int err;
 
 	pr_debug("%s: Enter %s\n", dev_name(&pdev->dev), __func__);
 	msm_host = devm_kzalloc(&pdev->dev, sizeof(struct sdhci_msm_host),
@@ -3870,6 +4000,7 @@ static int sdhci_msm_probe(struct platform_device *pdev)
 	host->quirks |= SDHCI_QUIRK_BROKEN_CARD_DETECTION;
 	host->quirks |= SDHCI_QUIRK_SINGLE_POWER_WRITE;
 	host->quirks |= SDHCI_QUIRK_CAP_CLOCK_BASE_BROKEN;
+	host->quirks |= SDHCI_QUIRK_NO_ENDATTR_IN_NOPDESC;
 	host->quirks2 |= SDHCI_QUIRK2_ALWAYS_USE_BASE_CLOCK;
 	host->quirks2 |= SDHCI_QUIRK2_USE_MAX_DISCARD_SIZE;
 	host->quirks2 |= SDHCI_QUIRK2_IGNORE_DATATOUT_FOR_R1BCMD;
@@ -4147,6 +4278,26 @@ static int sdhci_msm_probe(struct platform_device *pdev)
 	}
 
 	device_enable_async_suspend(&pdev->dev);
+
+	err = sysfs_create_group(&pdev->dev.kobj, &mmc_health_attr_grp);
+	if (err)
+		pr_err("%s: failed to create sysfs group with err %d\n",
+							 __func__, err);
+
+	msm_host->mmc_manual_gc_attr.show =
+			show_mmc_manual_gc;
+	msm_host->mmc_manual_gc_attr.store =
+			store_mmc_manual_gc;
+	sysfs_attr_init(&msm_host->mmc_manual_gc_attr.attr);
+	msm_host->mmc_manual_gc_attr.attr.name =
+			"manual_gc";
+	msm_host->mmc_manual_gc_attr.attr.mode = 0664;
+	ret = device_create_file(&msm_host->pdev->dev,
+			&msm_host->mmc_manual_gc_attr);
+	if (ret)
+		dev_err(&msm_host->pdev->dev, "%s: fail to create mmc_manual_gc_attr (%d)\n",
+			__func__, ret);
+
 	/* Successful initialization */
 	goto out;
 
@@ -4367,7 +4518,6 @@ static int sdhci_msm_suspend(struct device *dev)
 	struct sdhci_host *host = dev_get_drvdata(dev);
 	struct sdhci_pltfm_host *pltfm_host = sdhci_priv(host);
 	struct sdhci_msm_host *msm_host = pltfm_host->priv;
-	int ret = 0;
 
 	if (host->mmc->index == 2)
 		pr_crit("%s: %s @line=%d, START\n", mmc_hostname(host->mmc), __func__, __LINE__);
@@ -4380,9 +4530,10 @@ static int sdhci_msm_suspend(struct device *dev)
 		goto out;
 	}
 
-	return sdhci_msm_runtime_suspend(dev);
+	sdhci_msm_runtime_suspend(dev);
 out:
-	return ret;
+	sdhci_msm_disable_controller_clock(host);
+	return 0;
 }
 
 static int sdhci_msm_resume(struct device *dev)

@@ -2134,7 +2134,11 @@ static int rtnl_fdb_add(struct sk_buff *skb, struct nlmsghdr *nlh)
 	}
 
 	if (dev->type != ARPHRD_ETHER) {
+<<<<<<< HEAD
 		pr_info("PF_BRIDGE: FDB add only supported for Ethernet devices");
+=======
+		pr_info("PF_BRIDGE: FDB add only supported for Ethernet devices\n");
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 		return -EINVAL;
 	}
 
@@ -2240,7 +2244,11 @@ static int rtnl_fdb_del(struct sk_buff *skb, struct nlmsghdr *nlh)
 	}
 
 	if (dev->type != ARPHRD_ETHER) {
+<<<<<<< HEAD
 		pr_info("PF_BRIDGE: FDB delete only supported for Ethernet devices");
+=======
+		pr_info("PF_BRIDGE: FDB delete only supported for Ethernet devices\n");
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 		return -EINVAL;
 	}
 

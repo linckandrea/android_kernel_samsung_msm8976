@@ -1161,7 +1161,12 @@ done:
 	kobject_del(&dev->kobj);
  Error:
 	cleanup_glue_dir(dev, glue_dir);
+<<<<<<< HEAD
 	put_device(parent);
+=======
+	if (parent)
+		put_device(parent);
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 name_error:
 	kfree(dev->p);
 	dev->p = NULL;

@@ -650,8 +650,20 @@ static int ashmem_pin_unpin(struct ashmem_area *asma, unsigned long cmd,
 	size_t pgstart, pgend;
 	int ret = -EINVAL;
 
+<<<<<<< HEAD
 	if (unlikely(copy_from_user(&pin, p, sizeof(pin))))
 		return -EFAULT;
+=======
+	mutex_lock(&ashmem_mutex);
+
+	if (unlikely(!asma->file))
+		goto out_unlock;
+
+	if (unlikely(copy_from_user(&pin, p, sizeof(pin)))) {
+		ret = -EFAULT;
+		goto out_unlock;
+	}
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 
 	mutex_lock(&ashmem_mutex);
 
@@ -746,7 +758,8 @@ static long ashmem_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 
 /* support of 32bit userspace on 64bit platforms */
 #ifdef CONFIG_COMPAT
-static long compat_ashmem_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
+static long compat_ashmem_ioctl(struct file *file, unsigned int cmd,
+				unsigned long arg)
 {
 
 	switch (cmd) {

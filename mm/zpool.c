@@ -129,7 +129,11 @@ static void zpool_put_driver(struct zpool_driver *driver)
 /**
  * zpool_create_pool() - Create a new zpool
  * @type	The type of the zpool to create (e.g. zbud, zsmalloc)
+<<<<<<< HEAD
  * @name	The name of the zpool (e.g. zram0, zswap)
+=======
+ * @name       The name of the zpool (e.g. zram0, zswap)
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
  * @gfp		The GFP flags to use when allocating the pool.
  * @ops		The optional ops callback.
  *
@@ -142,7 +146,11 @@ static void zpool_put_driver(struct zpool_driver *driver)
  * Returns: New zpool on success, NULL on failure.
  */
 struct zpool *zpool_create_pool(char *type, char *name, gfp_t gfp,
+<<<<<<< HEAD
 		struct zpool_ops *ops)
+=======
+                struct zpool_ops *ops)
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 {
 	struct zpool_driver *driver;
 	struct zpool *zpool;
@@ -161,7 +169,11 @@ struct zpool *zpool_create_pool(char *type, char *name, gfp_t gfp,
 		return NULL;
 	}
 
+<<<<<<< HEAD
 	zpool = kmalloc(sizeof(*zpool), GFP_KERNEL);
+=======
+	zpool = kmalloc(sizeof(*zpool), gfp);
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 	if (!zpool) {
 		pr_err("couldn't create zpool - out of memory\n");
 		zpool_put_driver(driver);
@@ -347,6 +359,7 @@ u64 zpool_get_total_size(struct zpool *zpool)
 	return zpool->driver->total_size(zpool->pool);
 }
 
+<<<<<<< HEAD
 unsigned long zpool_compact(struct zpool *zpool)
 {
 	return zpool->driver->compact(zpool->pool);
@@ -357,6 +370,8 @@ bool zpool_compactable(struct zpool *zpool, unsigned int pages)
 	return zpool->driver->compactable(zpool->pool, pages);
 }
 
+=======
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 static int __init init_zpool(void)
 {
 	pr_info("loaded\n");

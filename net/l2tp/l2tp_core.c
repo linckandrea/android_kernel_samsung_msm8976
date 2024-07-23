@@ -196,6 +196,7 @@ struct l2tp_session *l2tp_session_find(struct net *net, struct l2tp_tunnel *tunn
 }
 EXPORT_SYMBOL_GPL(l2tp_session_find);
 
+<<<<<<< HEAD
 void l2tp_tunnel_free(struct l2tp_tunnel *tunnel)
 {
 	sock_put(tunnel->sock);
@@ -293,6 +294,8 @@ struct l2tp_session *l2tp_session_get(const struct net *net,
 }
 EXPORT_SYMBOL_GPL(l2tp_session_get);
 
+=======
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 struct l2tp_session *l2tp_session_get_nth(struct l2tp_tunnel *tunnel, int nth,
 					  bool do_ref)
 {

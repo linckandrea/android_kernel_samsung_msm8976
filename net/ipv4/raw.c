@@ -493,7 +493,10 @@ static int raw_sendmsg(struct kiocb *iocb, struct sock *sk, struct msghdr *msg,
 	int err;
 	struct ip_options_data opt_copy;
 	struct raw_frag_vec rfv;
+<<<<<<< HEAD
 	int hdrincl;
+=======
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 
 	err = -EMSGSIZE;
 	if (len > 0xFFFF)
@@ -599,10 +602,17 @@ static int raw_sendmsg(struct kiocb *iocb, struct sock *sk, struct msghdr *msg,
 			   RT_SCOPE_UNIVERSE,
 			   hdrincl ? IPPROTO_RAW : sk->sk_protocol,
 			   inet_sk_flowi_flags(sk) | FLOWI_FLAG_CAN_SLEEP |
+<<<<<<< HEAD
 			    (hdrincl ? FLOWI_FLAG_KNOWN_NH : 0),
 			   daddr, saddr, 0, 0, sk->sk_uid);
 
 	if (!hdrincl) {
+=======
+			    (inet->hdrincl ? FLOWI_FLAG_KNOWN_NH : 0),
+			   daddr, saddr, 0, 0, sk->sk_uid);
+
+	if (!inet->hdrincl) {
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 		rfv.iov = msg->msg_iov;
 		rfv.hlen = 0;
 

@@ -823,7 +823,7 @@ static void ext4_put_super(struct super_block *sb)
 			ext4_abort(sb, "Couldn't clean up the journal");
 	}
 
-	ext4_es_unregister_shrinker(sb);
+	ext4_es_unregister_shrinker(sbi);
 	del_timer(&sbi->s_err_report);
 	ext4_release_system_zone(sb);
 	ext4_mb_release(sb);
@@ -913,6 +913,7 @@ static struct inode *ext4_alloc_inode(struct super_block *sb)
 	rwlock_init(&ei->i_es_lock);
 	INIT_LIST_HEAD(&ei->i_es_lru);
 	ei->i_es_lru_nr = 0;
+	ei->i_touch_when = 0;
 	ei->i_reserved_data_blocks = 0;
 	ei->i_reserved_meta_blocks = 0;
 	ei->i_allocated_meta_blocks = 0;
@@ -2094,6 +2095,7 @@ static int ext4_check_descriptors(struct super_block *sb,
 			ext4_msg(sb, KERN_ERR, "ext4_check_descriptors: "
 				 "Block bitmap for group %u overlaps "
 				 "superblock", i);
+<<<<<<< HEAD
 			if (!(sb->s_flags & MS_RDONLY))
 				return 0;
 		}
@@ -2104,6 +2106,8 @@ static int ext4_check_descriptors(struct super_block *sb,
 				 "block group descriptors", i);
 			if (!(sb->s_flags & MS_RDONLY))
 				return 0;
+=======
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 		}
 		if (block_bitmap < first_block || block_bitmap > last_block) {
 			ext4_msg(sb, KERN_ERR, "ext4_check_descriptors: "
@@ -2116,6 +2120,7 @@ static int ext4_check_descriptors(struct super_block *sb,
 			ext4_msg(sb, KERN_ERR, "ext4_check_descriptors: "
 				 "Inode bitmap for group %u overlaps "
 				 "superblock", i);
+<<<<<<< HEAD
 			if (!(sb->s_flags & MS_RDONLY))
 				return 0;
 		}
@@ -2126,6 +2131,8 @@ static int ext4_check_descriptors(struct super_block *sb,
 				 "block group descriptors", i);
 			if (!(sb->s_flags & MS_RDONLY))
 				return 0;
+=======
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 		}
 		if (inode_bitmap < first_block || inode_bitmap > last_block) {
 			ext4_msg(sb, KERN_ERR, "ext4_check_descriptors: "
@@ -2138,6 +2145,7 @@ static int ext4_check_descriptors(struct super_block *sb,
 			ext4_msg(sb, KERN_ERR, "ext4_check_descriptors: "
 				 "Inode table for group %u overlaps "
 				 "superblock", i);
+<<<<<<< HEAD
 			if (!(sb->s_flags & MS_RDONLY))
 				return 0;
 		}
@@ -2148,6 +2156,8 @@ static int ext4_check_descriptors(struct super_block *sb,
 				 "block group descriptors", i);
 			if (!(sb->s_flags & MS_RDONLY))
 				return 0;
+=======
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 		}
 		if (inode_table < first_block ||
 		    inode_table + sbi->s_itb_per_group - 1 > last_block) {
@@ -3664,6 +3674,7 @@ static int ext4_fill_super(struct super_block *sb, void *data, int silent)
 		ext4_msg(sb, KERN_ERR,
 			 "Invalid log block size: %u",
 			 le32_to_cpu(es->s_log_block_size));
+<<<<<<< HEAD
 		goto failed_mount;
 	}
 	if (le32_to_cpu(es->s_log_cluster_size) >
@@ -3671,6 +3682,8 @@ static int ext4_fill_super(struct super_block *sb, void *data, int silent)
 		ext4_msg(sb, KERN_ERR,
 			 "Invalid log cluster size: %u",
 			 le32_to_cpu(es->s_log_cluster_size));
+=======
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 		goto failed_mount;
 	}
 
@@ -3792,6 +3805,13 @@ static int ext4_fill_super(struct super_block *sb, void *data, int silent)
 			ext4_msg(sb, KERN_ERR,
 				 "cluster size (%d) smaller than "
 				 "block size (%d)", clustersize, blocksize);
+			goto failed_mount;
+		}
+		if (le32_to_cpu(es->s_log_cluster_size) >
+		    (EXT4_MAX_CLUSTER_LOG_SIZE - EXT4_MIN_BLOCK_LOG_SIZE)) {
+			ext4_msg(sb, KERN_ERR,
+				 "Invalid log cluster size: %u",
+				 le32_to_cpu(es->s_log_cluster_size));
 			goto failed_mount;
 		}
 		sbi->s_cluster_bits = le32_to_cpu(es->s_log_cluster_size) -
@@ -3941,7 +3961,10 @@ static int ext4_fill_super(struct super_block *sb, void *data, int silent)
 			goto failed_mount2;
 		}
 	}
+<<<<<<< HEAD
 	sbi->s_gdb_count = db_count;
+=======
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 	if (!ext4_check_descriptors(sb, logical_sb_block, &first_not_zeroed)) {
 		ext4_msg(sb, KERN_ERR, "group descriptors corrupted!");
 		goto failed_mount2;
@@ -3962,7 +3985,7 @@ static int ext4_fill_super(struct super_block *sb, void *data, int silent)
 	sbi->s_err_report.data = (unsigned long) sb;
 
 	/* Register extent status tree shrinker */
-	ext4_es_register_shrinker(sb);
+	ext4_es_register_shrinker(sbi);
 
 	err = percpu_counter_init(&sbi->s_freeclusters_counter,
 			ext4_count_free_clusters(sb));
@@ -4293,7 +4316,7 @@ failed_mount_wq:
 		sbi->s_journal = NULL;
 	}
 failed_mount3:
-	ext4_es_unregister_shrinker(sb);
+	ext4_es_unregister_shrinker(sbi);
 	del_timer(&sbi->s_err_report);
 	if (sbi->s_flex_groups)
 		ext4_kvfree(sbi->s_flex_groups);

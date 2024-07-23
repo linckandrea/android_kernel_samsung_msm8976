@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /* Copyright (c) 2012-2016, The Linux Foundation. All rights reserved.
+=======
+/* Copyright (c) 2012-2017, The Linux Foundation. All rights reserved.
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -2056,6 +2060,7 @@ int create_pkt_cmd_session_set_property(
 		pkt->rg_property_data[0] =
 			HFI_PROPERTY_PARAM_VENC_VIDEO_SIGNAL_INFO;
 		pkt->size += sizeof(u32) + sizeof(*signal_info);
+<<<<<<< HEAD
                 break;
         }
 	case HAL_PARAM_VENC_CONSTRAINED_INTRA_PRED:
@@ -2064,6 +2069,8 @@ int create_pkt_cmd_session_set_property(
 			HFI_PROPERTY_PARAM_VENC_CONSTRAINED_INTRA_PRED,
 			((struct hal_enable *)pdata)->enable);
 		pkt->size += sizeof(u32) + sizeof(struct hfi_enable);
+=======
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 		break;
 	}
 	case HAL_PARAM_VENC_IFRAMESIZE_TYPE:

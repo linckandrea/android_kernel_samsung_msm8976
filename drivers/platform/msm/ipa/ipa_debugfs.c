@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /* Copyright (c) 2012-2015, 2018, The Linux Foundation. All rights reserved.
+=======
+/* Copyright (c) 2012-2018, The Linux Foundation. All rights reserved.
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -1308,7 +1312,11 @@ static ssize_t ipa_read_nat4(struct file *file,
 
 	if (!ipa_ctx->nat_mem.size_expansion_tables)
 		pr_err("Expansion Table Size:%d\n",
+<<<<<<< HEAD
 				ipa_ctx->nat_mem.size_expansion_tables);
+=======
+			ipa_ctx->nat_mem.size_expansion_tables);
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 	else
 		pr_err("Expansion Table Size:%d\n",
 				ipa_ctx->nat_mem.size_expansion_tables-1);

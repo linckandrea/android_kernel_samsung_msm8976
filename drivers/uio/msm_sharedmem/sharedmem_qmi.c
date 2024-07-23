@@ -303,6 +303,7 @@ static int debug_close(struct inode *inode, struct file *file)
 	debug_buffer = NULL;
 	debug_data_size = 0;
 	mutex_unlock(&dbg_buf_lock);
+<<<<<<< HEAD
 	return 0;
 }
 
@@ -323,6 +324,8 @@ static ssize_t status_read(struct file *file, char __user *buf,
 
 static int status_close(struct inode *inode, struct file *file)
 {
+=======
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 	return 0;
 }
 

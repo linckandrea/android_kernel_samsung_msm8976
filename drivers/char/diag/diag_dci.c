@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /* Copyright (c) 2012-2018, 2019, The Linux Foundation. All rights reserved.
+=======
+/* Copyright (c) 2012-2017, 2019, The Linux Foundation. All rights reserved.
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -812,7 +816,11 @@ static void dci_process_ctrl_status(unsigned char *buf, int len, int token)
 	uint8_t i;
 	int peripheral_mask, status;
 
+<<<<<<< HEAD
 	if (!buf || len < 2 || (len < sizeof(struct diag_ctrl_dci_status))) {
+=======
+	if (!buf || (len < sizeof(struct diag_ctrl_dci_status))) {
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 		pr_err("diag: In %s, invalid buf %pK or length: %d\n",
 		       __func__, buf, len);
 		return;
@@ -1115,6 +1123,7 @@ void extract_dci_events(unsigned char *buf, int len, int data_source, int token)
 
 	if (!buf) {
 		pr_err("diag: In %s buffer is NULL\n", __func__);
+<<<<<<< HEAD
 		return;
 	}
 
@@ -1123,6 +1132,30 @@ void extract_dci_events(unsigned char *buf, int len, int data_source, int token)
 	 * The length field indicates the total length removing the cmd_code
 	 * and the length field. The event parsing in that case should happen
 	 * till the end.
+	 */
+	if (len < 3) {
+		pr_err("diag: In %s invalid len: %d\n", __func__, len);
+		return;
+	}
+	length = *(uint16_t *)(buf + 1); /* total length of event series */
+	if ((length == 0) || (len != (length + 3))) {
+		pr_err("diag: Incoming dci event length: %d is invalid\n",
+			length);
+		return;
+	}
+	/*
+	 * Move directly to the start of the event series.
+	 * The event parsing should happen from start of event
+	 * series till the end.
+=======
+		return;
+	}
+	/*
+	 * 1 byte for event code and 2 bytes for the length field.
+	 * The length field indicates the total length removing the cmd_code
+	 * and the lenght field. The event parsing in that case should happen
+	 * till the end.
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 	 */
 	if (len < 3) {
 		pr_err("diag: In %s invalid len: %d\n", __func__, len);
@@ -1424,9 +1457,10 @@ void diag_dci_notify_client(int peripheral_mask, int data, int proc)
 	if (data == DIAG_STATUS_OPEN)
 		dci_ops_tbl[proc].peripheral_status |= peripheral_mask;
 	else
-		dci_ops_tbl[proc].peripheral_status &= !peripheral_mask;
+		dci_ops_tbl[proc].peripheral_status &= ~peripheral_mask;
 
 	/* Notify the DCI process that the peripheral DCI Channel is up */
+	mutex_lock(&driver->dci_mutex);
 	list_for_each_safe(start, temp, &driver->dci_client_list) {
 		entry = list_entry(start, struct diag_dci_client_tbl, track);
 		if (entry->client_info.token != proc)
@@ -1461,6 +1495,7 @@ void diag_dci_notify_client(int peripheral_mask, int data, int proc)
 			}
 		}
 	}
+	mutex_unlock(&driver->dci_mutex);
 }
 
 static int diag_send_dci_pkt(struct diag_cmd_reg_t *entry,
@@ -1933,6 +1968,7 @@ static int diag_process_dci_pkt_rsp(unsigned char *buf, int len)
 	reg_entry.cmd_code_hi = header->subsys_cmd_code;
 	reg_entry.cmd_code_lo = header->subsys_cmd_code;
 
+	mutex_lock(&driver->cmd_reg_mutex);
 	temp_entry = diag_cmd_search(&reg_entry, ALL_PROC);
 	if (temp_entry) {
 		reg_item = container_of(temp_entry, struct diag_cmd_reg_t,
@@ -1944,6 +1980,7 @@ static int diag_process_dci_pkt_rsp(unsigned char *buf, int len)
 				reg_entry.cmd_code, reg_entry.subsys_id,
 				reg_entry.cmd_code_hi);
 	}
+	mutex_unlock(&driver->cmd_reg_mutex);
 
 	return ret;
 }
@@ -3030,6 +3067,7 @@ int diag_dci_write_proc(uint8_t peripheral, int pkt_type, char *buf, int len)
 
 	if (!buf || peripheral >= NUM_PERIPHERALS || len < 0 ||
 	    !(driver->feature[PERIPHERAL_MODEM].rcvd_feature_mask)) {
+<<<<<<< HEAD
 		if(peripheral >= NUM_PERIPHERALS)  {
 			DIAG_LOG(DIAG_DEBUG_DCI,
 				"buf: 0x%pK, p: %d, len: %d \n",
@@ -3040,6 +3078,12 @@ int diag_dci_write_proc(uint8_t peripheral, int pkt_type, char *buf, int len)
 					buf, peripheral, len,
 					driver->feature[peripheral].rcvd_feature_mask);
 		}
+=======
+		DIAG_LOG(DIAG_DEBUG_DCI,
+			"buf: 0x%pK, p: %d, len: %d, f_mask: %d\n",
+				buf, peripheral, len,
+				driver->feature[peripheral].rcvd_feature_mask);
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 		return -EINVAL;
 	}
 

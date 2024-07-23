@@ -128,14 +128,16 @@ source "drivers/staging/sb105x/Kconfig"
 
 source "drivers/staging/fwserial/Kconfig"
 
-source "drivers/staging/zcache/Kconfig"
-
 source "drivers/staging/goldfish/Kconfig"
 
 source "drivers/staging/netlogic/Kconfig"
 
 source "drivers/staging/dwc2/Kconfig"
 
+<<<<<<< HEAD
 source "drivers/staging/vnswap/Kconfig"
+=======
+source "drivers/staging/prima/Kconfig"
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 
 endif # STAGING

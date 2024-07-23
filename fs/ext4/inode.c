@@ -545,7 +545,7 @@ static void ext4_map_blocks_es_recheck(handle_t *handle,
 	if (es_map->m_lblk != map->m_lblk ||
 	    es_map->m_flags != map->m_flags ||
 	    es_map->m_pblk != map->m_pblk) {
-		printk("ES cache assertation failed for inode: %lu "
+		printk("ES cache assertion failed for inode: %lu "
 		       "es_cached ex [%d/%d/%llu/%x] != "
 		       "found ex [%d/%d/%llu/%x] retval %d flags %x\n",
 		       inode->i_ino, es_map->m_lblk, es_map->m_len,
@@ -594,6 +594,8 @@ int ext4_map_blocks(handle_t *handle, struct inode *inode,
 		  "logical block %lu\n", inode->i_ino, flags, map->m_len,
 		  (unsigned long) map->m_lblk);
 
+	ext4_es_lru_add(inode);
+
 	/* Lookup extent status tree firstly */
 	if (ext4_es_lookup_extent(inode, map->m_lblk, &es)) {
 		if (ext4_es_is_written(&es) || ext4_es_is_unwritten(&es)) {
@@ -636,7 +638,7 @@ int ext4_map_blocks(handle_t *handle, struct inode *inode,
 
 #ifdef ES_AGGRESSIVE_TEST
 		if (retval != map->m_len) {
-			printk("ES len assertation failed for inode: %lu "
+			printk("ES len assertion failed for inode: %lu "
 			       "retval %d != map->m_len %d "
 			       "in %s (lookup)\n", inode->i_ino, retval,
 			       map->m_len, __func__);
@@ -738,7 +740,7 @@ found:
 
 #ifdef ES_AGGRESSIVE_TEST
 		if (retval != map->m_len) {
-			printk("ES len assertation failed for inode: %lu "
+			printk("ES len assertion failed for inode: %lu "
 			       "retval %d != map->m_len %d "
 			       "in %s (allocation)\n", inode->i_ino, retval,
 			       map->m_len, __func__);
@@ -1912,6 +1914,8 @@ static int ext4_da_map_blocks(struct inode *inode, sector_t iblock,
 		  "logical block %lu\n", inode->i_ino, map->m_len,
 		  (unsigned long) map->m_lblk);
 
+	ext4_es_lru_add(inode);
+
 	/* Lookup extent status tree firstly */
 	if (ext4_es_lookup_extent(inode, iblock, &es)) {
 
@@ -2023,7 +2027,7 @@ add_delayed:
 
 #ifdef ES_AGGRESSIVE_TEST
 		if (retval != map->m_len) {
-			printk("ES len assertation failed for inode: %lu "
+			printk("ES len assertion failed for inode: %lu "
 			       "retval %d != map->m_len %d "
 			       "in %s (lookup)\n", inode->i_ino, retval,
 			       map->m_len, __func__);
@@ -4241,18 +4245,25 @@ struct inode *__ext4_iget(struct super_block *sb, unsigned long ino,
 	raw_inode = ext4_raw_inode(&iloc);
 
 	if ((ino == EXT4_ROOT_INO) && (raw_inode->i_links_count == 0)) {
+<<<<<<< HEAD
 		ext4_error_inode(inode, function, line, 0,
 				 "iget: root inode unallocated");
+=======
+		EXT4_ERROR_INODE(inode, "root inode unallocated");
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 		ret = -EIO;
 		goto bad_inode;
 	}
 
+<<<<<<< HEAD
 	if ((flags & EXT4_IGET_HANDLE) &&
 	    (raw_inode->i_links_count == 0) && (raw_inode->i_mode == 0)) {
 		ret = -ESTALE;
 		goto bad_inode;
 	}
 
+=======
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 	if (EXT4_INODE_SIZE(inode->i_sb) > EXT4_GOOD_OLD_INODE_SIZE) {
 		ei->i_extra_isize = le16_to_cpu(raw_inode->i_extra_isize);
 		if (EXT4_GOOD_OLD_INODE_SIZE + ei->i_extra_isize >
@@ -4333,8 +4344,12 @@ struct inode *__ext4_iget(struct super_block *sb, unsigned long ino,
 			((__u64)le16_to_cpu(raw_inode->i_file_acl_high)) << 32;
 	inode->i_size = ext4_isize(raw_inode);
 	if ((size = i_size_read(inode)) < 0) {
+<<<<<<< HEAD
 		ext4_error_inode(inode, function, line, 0,
 				 "iget: bad i_size value: %lld", size);
+=======
+		EXT4_ERROR_INODE(inode, "bad i_size value: %lld", size);
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 		ret = -EIO;
 		goto bad_inode;
 	}
@@ -4691,7 +4706,12 @@ int ext4_write_inode(struct inode *inode, struct writeback_control *wbc)
 			return -EIO;
 		}
 
-		if (wbc->sync_mode != WB_SYNC_ALL)
+		/*
+		 * No need to force transaction in WB_SYNC_NONE mode. Also
+		 * ext4_sync_fs() will force the commit after everything is
+		 * written.
+		 */
+		if (wbc->sync_mode != WB_SYNC_ALL || wbc->for_sync)
 			return 0;
 
 		err = jbd2_complete_transaction(EXT4_SB(inode->i_sb)->s_journal,
@@ -4702,7 +4722,11 @@ int ext4_write_inode(struct inode *inode, struct writeback_control *wbc)
 		err = __ext4_get_inode_loc(inode, &iloc, 0);
 		if (err)
 			return err;
-		if (wbc->sync_mode == WB_SYNC_ALL)
+		/*
+		 * sync(2) will flush the whole buffer cache. No need to do
+		 * it here separately for each inode.
+		 */
+		if (wbc->sync_mode == WB_SYNC_ALL && !wbc->for_sync)
 			sync_dirty_buffer(iloc.bh);
 		if (buffer_req(iloc.bh) && !buffer_uptodate(iloc.bh)) {
 			EXT4_ERROR_INODE_BLOCK(inode, iloc.bh->b_blocknr,

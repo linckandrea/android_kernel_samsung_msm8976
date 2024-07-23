@@ -658,7 +658,11 @@ int ping_common_sendmsg(int family, struct msghdr *msg, size_t len,
 		return -EMSGSIZE;
 
 	/* Must have at least a full ICMP header. */
+<<<<<<< HEAD
 	if (len < sizeof(struct icmphdr))
+=======
+	if (len < icmph_len)
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 		return -EINVAL;
 
 	/*
@@ -898,7 +902,11 @@ int ping_recvmsg(struct kiocb *iocb, struct sock *sk, struct msghdr *msg,
 
 	/* Copy the address and add cmsg data. */
 	if (family == AF_INET) {
+<<<<<<< HEAD
 		DECLARE_SOCKADDR(struct sockaddr_in *, sin, msg->msg_name);
+=======
+		struct sockaddr_in *sin = (struct sockaddr_in *)msg->msg_name;
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 
 		if (sin) {
 			sin->sin_family = AF_INET;
@@ -915,7 +923,12 @@ int ping_recvmsg(struct kiocb *iocb, struct sock *sk, struct msghdr *msg,
 	} else if (family == AF_INET6) {
 		struct ipv6_pinfo *np = inet6_sk(sk);
 		struct ipv6hdr *ip6 = ipv6_hdr(skb);
+<<<<<<< HEAD
 		DECLARE_SOCKADDR(struct sockaddr_in6 *, sin6, msg->msg_name);
+=======
+		struct sockaddr_in6 *sin6 =
+			(struct sockaddr_in6 *)msg->msg_name;
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 
 		if (sin6) {
 			sin6->sin6_family = AF_INET6;

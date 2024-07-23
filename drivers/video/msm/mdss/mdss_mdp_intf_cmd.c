@@ -26,8 +26,11 @@
 #define MAX_SESSIONS 2
 
 #define SPLIT_MIXER_OFFSET 0x800
+<<<<<<< HEAD
 /* wait for at most 2 vsync for lowest refresh rate (24hz) */
 #define KOFF_TIMEOUT msecs_to_jiffies(100)
+=======
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 
 #define STOP_TIMEOUT(hz) msecs_to_jiffies((1000 / hz) * (VSYNC_EXPIRE_TICK + 2))
 #define POWER_COLLAPSE_TIME msecs_to_jiffies(100)
@@ -67,7 +70,6 @@ struct mdss_mdp_cmd_ctx {
 	struct mdss_mdp_cmd_ctx *sync_ctx; /* for partial update */
 	u32 pp_timeout_report_cnt;
 	int pingpong_split_slave;
-	bool pending_mode_switch; /* Used to prevent powering down in stop */
 };
 
 struct mdss_mdp_cmd_ctx mdss_mdp_cmd_ctx_list[MAX_SESSIONS];
@@ -415,12 +417,18 @@ static int mdss_mdp_cmd_wait4readptr(struct mdss_mdp_cmd_ctx *ctx)
 {
 	int rc = 0;
 
+<<<<<<< HEAD
 	MDSS_XLOG(0xeeee, rc, atomic_read(&ctx->readptr_cnt), ctx->ctl->intf_num,sched_clock(),jiffies);
 	rc = wait_event_timeout(ctx->rdptr_waitq,
 		atomic_read(&ctx->readptr_cnt) == 0,
 		KOFF_TIMEOUT);
 	MDSS_XLOG(0xffff, rc, atomic_read(&ctx->readptr_cnt), ctx->ctl->intf_num,sched_clock(),jiffies);
 	
+=======
+	rc = wait_event_timeout(ctx->rdptr_waitq,
+		atomic_read(&ctx->readptr_cnt) == 0,
+		KOFF_TIMEOUT);
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 	if (rc <= 0) {
 		if (atomic_read(&ctx->readptr_cnt))
 			pr_err("timed out waiting for rdptr irq\n");
@@ -476,8 +484,11 @@ static void mdss_mdp_cmd_intf_callback(void *data, int event)
 				(val & 0xffff) > (te->start_pos +
 				te->sync_threshold_start), 10, timeout_us);
 
+<<<<<<< HEAD
 		MDSS_XLOG(val,te->start_pos,te->sync_threshold_start,timeout_us);
 
+=======
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 		/*
 		 * rdptr interrupt will be disabled from command mode
 		 * clock work queue
@@ -529,6 +540,10 @@ static void mdss_mdp_cmd_intf_recovery(void *data, int event)
 			notify_frame_timeout = true;
 	}
 	spin_unlock_irqrestore(&ctx->koff_lock, flags);
+<<<<<<< HEAD
+=======
+
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 	if (notify_frame_timeout)
 		mdss_mdp_ctl_notify(ctx->ctl, MDP_NOTIFY_FRAME_TIMEOUT);
 
@@ -910,18 +925,26 @@ static int mdss_mdp_cmd_panel_on(struct mdss_mdp_ctl *ctl,
 		sctx = (struct mdss_mdp_cmd_ctx *) sctl->intf_ctx[MASTER_CTX];
 
 	if (!__mdss_mdp_cmd_is_panel_power_on_interactive(ctx)) {
-		rc = mdss_mdp_ctl_intf_event(ctl, MDSS_EVENT_LINK_READY, NULL);
-		WARN(rc, "intf %d link ready error (%d)\n", ctl->intf_num, rc);
+		if (ctl->pending_mode_switch != SWITCH_RESOLUTION) {
+			rc = mdss_mdp_ctl_intf_event(ctl,
+					MDSS_EVENT_LINK_READY, NULL);
+			WARN(rc, "intf %d link ready error (%d)\n",
+					ctl->intf_num, rc);
 
-		rc = mdss_mdp_ctl_intf_event(ctl, MDSS_EVENT_UNBLANK, NULL);
-		WARN(rc, "intf %d unblank error (%d)\n", ctl->intf_num, rc);
+			rc = mdss_mdp_ctl_intf_event(ctl,
+					MDSS_EVENT_UNBLANK, NULL);
+			WARN(rc, "intf %d unblank error (%d)\n",
+					ctl->intf_num, rc);
 
-		rc = mdss_mdp_ctl_intf_event(ctl, MDSS_EVENT_PANEL_ON, NULL);
-		WARN(rc, "intf %d panel on error (%d)\n", ctl->intf_num, rc);
+			rc = mdss_mdp_ctl_intf_event(ctl,
+					MDSS_EVENT_PANEL_ON, NULL);
+			WARN(rc, "intf %d panel on error (%d)\n",
+					ctl->intf_num, rc);
 
-		rc = mdss_mdp_tearcheck_enable(ctl, true);
-		WARN(rc, "intf %d tearcheck enable error (%d)\n",
-				ctl->intf_num, rc);
+			rc = mdss_mdp_tearcheck_enable(ctl, true);
+			WARN(rc, "intf %d tearcheck enable error (%d)\n",
+					ctl->intf_num, rc);
+		}
 
 		ctx->panel_power_state = MDSS_PANEL_POWER_ON;
 		if (sctx)
@@ -934,6 +957,7 @@ static int mdss_mdp_cmd_panel_on(struct mdss_mdp_ctl *ctl,
 		mdss_mdp_ctl_intf_event(ctl,
 			MDSS_EVENT_REGISTER_MDP_CALLBACK,
 			(void *)&ctx->intf_mdp_callback);
+<<<<<<< HEAD
 		
 		ctx->intf_stopped = 0;
 		if (sctx)
@@ -943,6 +967,12 @@ static int mdss_mdp_cmd_panel_on(struct mdss_mdp_ctl *ctl,
 		"kick off an image after getting the first TE signal to get a proper timing"*/
 		pr_debug("%s: add delay to wait 1st TE to come!", __func__); 
 		mdelay(20); // delay 16ms for TE signal to come, it will reset MDP te logic rdptr, added 4ms for margin
+=======
+
+		ctx->intf_stopped = 0;
+		if (sctx)
+			sctx->intf_stopped = 0;
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 	} else {
 		pr_err("%s: Panel already on\n", __func__);
 	}
@@ -1169,8 +1199,7 @@ int mdss_mdp_cmd_restore(struct mdss_mdp_ctl *ctl)
 }
 
 int mdss_mdp_cmd_ctx_stop(struct mdss_mdp_ctl *ctl,
-		struct mdss_mdp_cmd_ctx *ctx, int panel_power_state,
-		bool pend_switch)
+		struct mdss_mdp_cmd_ctx *ctx, int panel_power_state)
 {
 	struct mdss_mdp_cmd_ctx *sctx = NULL;
 	struct mdss_mdp_ctl *sctl = NULL;
@@ -1218,7 +1247,7 @@ int mdss_mdp_cmd_ctx_stop(struct mdss_mdp_ctl *ctl,
 	if (cancel_work_sync(&ctx->clk_work))
 		pr_debug("no pending clk work\n");
 
-	if (!pend_switch) {
+	if (!ctl->pending_mode_switch) {
 		mdss_mdp_ctl_intf_event(ctl,
 			MDSS_EVENT_REGISTER_RECOVERY_HANDLER,
 			NULL);
@@ -1251,7 +1280,7 @@ int mdss_mdp_cmd_ctx_stop(struct mdss_mdp_ctl *ctl,
 }
 
 int mdss_mdp_cmd_intfs_stop(struct mdss_mdp_ctl *ctl, int session,
-	int panel_power_state, bool pend_switch)
+	int panel_power_state)
 {
 	struct mdss_mdp_cmd_ctx *ctx;
 
@@ -1264,7 +1293,7 @@ int mdss_mdp_cmd_intfs_stop(struct mdss_mdp_ctl *ctl, int session,
 		return -ENODEV;
 	}
 
-	mdss_mdp_cmd_ctx_stop(ctl, ctx, panel_power_state, pend_switch);
+	mdss_mdp_cmd_ctx_stop(ctl, ctx, panel_power_state);
 
 	if (is_pingpong_split(ctl->mfd)) {
 		session += 1;
@@ -1277,14 +1306,14 @@ int mdss_mdp_cmd_intfs_stop(struct mdss_mdp_ctl *ctl, int session,
 			pr_err("invalid ctx session: %d\n", session);
 			return -ENODEV;
 		}
-		mdss_mdp_cmd_ctx_stop(ctl, ctx, panel_power_state, pend_switch);
+		mdss_mdp_cmd_ctx_stop(ctl, ctx, panel_power_state);
 	}
 	pr_debug("%s:-\n", __func__);
 	return 0;
 }
 
 static int mdss_mdp_cmd_stop_sub(struct mdss_mdp_ctl *ctl,
-		int panel_power_state, bool pend_switch)
+		int panel_power_state)
 {
 	struct mdss_mdp_cmd_ctx *ctx;
 	struct mdss_mdp_vsync_handler *tmp, *handle;
@@ -1303,19 +1332,21 @@ static int mdss_mdp_cmd_stop_sub(struct mdss_mdp_ctl *ctl,
 
 	/* Command mode is supported only starting at INTF1 */
 	session = ctl->intf_num - MDSS_MDP_INTF1;
-	return mdss_mdp_cmd_intfs_stop(ctl, session, panel_power_state,
-			pend_switch);
+	return mdss_mdp_cmd_intfs_stop(ctl, session, panel_power_state);
 }
 
 int mdss_mdp_cmd_stop(struct mdss_mdp_ctl *ctl, int panel_power_state)
 {
 	struct mdss_mdp_cmd_ctx *ctx = ctl->intf_ctx[MASTER_CTX];
+<<<<<<< HEAD
 	struct mdss_mdp_cmd_ctx *sctx = NULL;
+=======
+	struct mdss_mdp_cmd_ctx *sctx;
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 	struct mdss_mdp_ctl *sctl = mdss_mdp_get_split_ctl(ctl);
 	bool panel_off = false;
 	bool turn_off_clocks = false;
 	bool send_panel_events = false;
-	bool pend_switch = false;
 	int ret = 0;
 
 	if (!ctx) {
@@ -1387,11 +1418,14 @@ int mdss_mdp_cmd_stop(struct mdss_mdp_ctl *ctl, int panel_power_state)
 			if (sctx)
 				sctx->intf_stopped = 0;
 
+<<<<<<< HEAD
 			/*
 			 * Tearcheck was disabled while entering LP2 state.
 			 * Enable it back to allow updates in LP1 state.
 			 */
 			mdss_mdp_tearcheck_enable(ctl, true);
+=======
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 			goto end;
 		}
 	}
@@ -1399,14 +1433,11 @@ int mdss_mdp_cmd_stop(struct mdss_mdp_ctl *ctl, int panel_power_state)
 	if (!turn_off_clocks)
 		goto panel_events;
 
-	if (ctx->pending_mode_switch) {
-		pend_switch = true;
+	if (ctl->pending_mode_switch)
 		send_panel_events = false;
-		ctx->pending_mode_switch = 0;
-	}
 
 	pr_debug("%s: turn off interface clocks\n", __func__);
-	ret = mdss_mdp_cmd_stop_sub(ctl, panel_power_state, pend_switch);
+	ret = mdss_mdp_cmd_stop_sub(ctl, panel_power_state);
 	if (IS_ERR_VALUE(ret)) {
 		pr_err("%s: unable to stop interface: %d\n",
 				__func__, ret);
@@ -1414,7 +1445,7 @@ int mdss_mdp_cmd_stop(struct mdss_mdp_ctl *ctl, int panel_power_state)
 	}
 
 	if (sctl) {
-		mdss_mdp_cmd_stop_sub(sctl, panel_power_state, pend_switch);
+		mdss_mdp_cmd_stop_sub(sctl, panel_power_state);
 		if (IS_ERR_VALUE(ret)) {
 			pr_err("%s: unable to stop slave intf: %d\n",
 					__func__, ret);
@@ -1449,6 +1480,7 @@ panel_events:
 	ctl->ops.wait_pingpong = NULL;
 	ctl->ops.add_vsync_handler = NULL;
 	ctl->ops.remove_vsync_handler = NULL;
+	ctl->ops.reconfigure = NULL;
 
 end:
 	if (!IS_ERR_VALUE(ret))
@@ -1618,7 +1650,6 @@ void mdss_mdp_switch_roi_reset(struct mdss_mdp_ctl *ctl)
 
 void mdss_mdp_switch_to_vid_mode(struct mdss_mdp_ctl *ctl, int prep)
 {
-	struct mdss_mdp_cmd_ctx *ctx = ctl->intf_ctx[MASTER_CTX];
 	long int mode = MIPI_VIDEO_PANEL;
 	int rc = 0;
 
@@ -1633,12 +1664,61 @@ void mdss_mdp_switch_to_vid_mode(struct mdss_mdp_ctl *ctl, int prep)
 		rc = mdss_mdp_ctl_intf_event
 			(ctl, MDSS_EVENT_PANEL_CLK_CTRL, (void *)1);
 
-		ctx->pending_mode_switch = 1;
 		return;
 	}
 
 	mdss_mdp_ctl_intf_event(ctl, MDSS_EVENT_DSI_RECONFIG_CMD,
 			(void *) mode);
+}
+
+static int mdss_mdp_cmd_reconfigure(struct mdss_mdp_ctl *ctl,
+		enum dynamic_switch_modes mode, bool prep)
+{
+	int ret, rc = 0;
+
+	if (mdss_mdp_ctl_is_power_off(ctl))
+		return 0;
+
+	pr_debug("%s: ctl=%d mode=%d prep=%d\n", __func__,
+			ctl->num, mode, prep);
+
+	if (mode == SWITCH_TO_VIDEO_MODE) {
+		mdss_mdp_switch_to_vid_mode(ctl, prep);
+	} else if (mode == SWITCH_RESOLUTION) {
+		if (prep) {
+			/* make sure any pending transfer is finished */
+			ret = mdss_mdp_cmd_wait4pingpong(ctl, NULL);
+			if (ret)
+				return ret;
+
+			/*
+			 * keep a ref count on clocks to prevent them from
+			 * being disabled while switch happens
+			 */
+			mdss_bus_bandwidth_ctrl(true);
+			rc = mdss_iommu_ctrl(1);
+			if (IS_ERR_VALUE(rc))
+				pr_err("IOMMU attach failed\n");
+
+			mdss_mdp_clk_ctrl(MDP_BLOCK_POWER_ON);
+			mdss_mdp_ctl_intf_event(ctl, MDSS_EVENT_PANEL_CLK_CTRL,
+					(void *)1);
+
+			mdss_mdp_ctl_stop(ctl, MDSS_PANEL_POWER_OFF);
+			mdss_mdp_ctl_intf_event(ctl,
+					MDSS_EVENT_DSI_DYNAMIC_SWITCH,
+					(void *) mode);
+		} else {
+			/* release ref count after switch is complete */
+			mdss_mdp_ctl_intf_event(ctl, MDSS_EVENT_PANEL_CLK_CTRL,
+					(void *)0);
+			mdss_iommu_ctrl(0);
+			mdss_bus_bandwidth_ctrl(false);
+			mdss_mdp_clk_ctrl(MDP_BLOCK_POWER_OFF);
+		}
+	}
+
+	return 0;
 }
 
 int mdss_mdp_cmd_start(struct mdss_mdp_ctl *ctl)
@@ -1662,6 +1742,7 @@ int mdss_mdp_cmd_start(struct mdss_mdp_ctl *ctl)
 	ctl->ops.remove_vsync_handler = mdss_mdp_cmd_remove_vsync_handler;
 	ctl->ops.read_line_cnt_fnc = mdss_mdp_cmd_line_count;
 	ctl->ops.restore_fnc = mdss_mdp_cmd_restore;
+	ctl->ops.reconfigure = mdss_mdp_cmd_reconfigure;
 	pr_debug("%s:-\n", __func__);
 
 	return 0;

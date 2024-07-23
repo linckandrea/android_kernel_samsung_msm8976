@@ -3531,8 +3531,13 @@ static void print_sfr_message(
 	struct hfi_sfr_struct *vsfr = NULL;
 	struct hfi_msg_event_notify_packet *event_pkt;
 	struct vidc_hal_msg_pkt_hdr *msg_hdr;
+<<<<<<< HEAD
 	u32 vsfr_size = 0;
 	void *p = NULL;
+=======
+        u32 vsfr_size = 0;
+        void *p = NULL;
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 
 	msg_hdr = (struct vidc_hal_msg_pkt_hdr *)packet;
 	event_pkt =

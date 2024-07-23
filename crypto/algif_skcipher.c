@@ -474,6 +474,16 @@ static int skcipher_recvmsg(struct kiocb *unused, struct socket *sock,
 			sg = sgl->sg;
 
 			while (!sg->length)
+<<<<<<< HEAD
+=======
+			sg++;
+
+			sgl = list_first_entry(&ctx->tsgl,
+					       struct skcipher_sg_list, list);
+			sg = sgl->sg;
+
+			while (!sg->length)
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 				sg++;
 
 			ablkcipher_request_set_crypt(&ctx->req, sg,

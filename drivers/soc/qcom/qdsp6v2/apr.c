@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /* Copyright (c) 2010-2016, 2018, The Linux Foundation. All rights reserved.
+=======
+/* Copyright (c) 2010-2016, The Linux Foundation. All rights reserved.
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -696,6 +700,15 @@ int apr_deregister(void *handle)
 		svc->svc_cnt--;
 		if (!svc->svc_cnt) {
 			client[dest_id][client_id].svc_cnt--;
+<<<<<<< HEAD
+=======
+			svc->need_reset = 0x0;
+		}
+	} else if (client[dest_id][client_id].svc_cnt > 0) {
+		client[dest_id][client_id].svc_cnt--;
+		if (!client[dest_id][client_id].svc_cnt) {
+			svc->need_reset = 0x0;
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 			pr_debug("%s: service is reset %pK\n", __func__, svc);
 		}
 	}

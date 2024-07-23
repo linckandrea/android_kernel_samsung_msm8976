@@ -394,6 +394,10 @@
 		CALL(sys_renameat2)
 		CALL(sys_seccomp)
 		CALL(sys_getrandom)
+<<<<<<< HEAD
+=======
+/* 385 */	CALL(sys_memfd_create)
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 #ifndef syscalls_counted
 .equ syscalls_padding, ((NR_syscalls + 3) & ~3) - NR_syscalls
 #define syscalls_counted

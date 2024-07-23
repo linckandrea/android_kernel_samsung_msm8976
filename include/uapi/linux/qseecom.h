@@ -92,7 +92,7 @@ struct qseecom_load_img_req {
 	int32_t  ifd_data_fd; /* in */
 	char	 img_name[MAX_APP_NAME_SIZE]; /* in */
 	uint32_t app_arch; /* in */
-	int app_id; /* out*/
+	uint32_t app_id; /* out*/
 };
 
 struct qseecom_set_sb_mem_param_req {
@@ -116,7 +116,10 @@ struct qseecom_qseos_version_req {
 struct qseecom_qsee_version_req {
 	unsigned int qsee_version;
 };
+<<<<<<< HEAD
 
+=======
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 /*
  * struct qseecom_qseos_app_load_query - verify if app is loaded in qsee
  * @app_name[MAX_APP_NAME_SIZE]-  name of the app.
@@ -124,7 +127,7 @@ struct qseecom_qsee_version_req {
  */
 struct qseecom_qseos_app_load_query {
 	char app_name[MAX_APP_NAME_SIZE]; /* in */
-	int app_id; /* out */
+	uint32_t app_id; /* out */
 	uint32_t app_arch;
 };
 
@@ -361,6 +364,11 @@ extern long qseecom_ioctl(struct file *file,
 	_IOWR(QSEECOM_IOC_MAGIC, 36, struct qseecom_send_modfd_listener_resp)
 
 #define QSEECOM_IOCTL_GET_QSEE_VERSION_REQ \
+<<<<<<< HEAD
 	_IOWR(QSEECOM_IOC_MAGIC, 37, struct qseecom_qsee_version_req)	
 
 #endif /* _UAPI_QSEECOM_H_ */
+=======
+	_IOWR(QSEECOM_IOC_MAGIC, 37, struct qseecom_qsee_version_req)
+#endif /* _UAPI_QSEECOM_H_ */
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7

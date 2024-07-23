@@ -159,6 +159,17 @@ struct disp_info_type_suspend {
 	int panel_power_state;
 };
 
+struct disp_info_notify {
+	int type;
+	struct timer_list timer;
+	struct completion comp;
+	struct mutex lock;
+	int value;
+	int is_suspend;
+	int ref_count;
+	bool init_done;
+};
+
 struct msm_sync_pt_data {
 	char *fence_name;
 	u32 acq_fen_cnt;
@@ -291,9 +302,12 @@ struct msm_fb_data_type {
 	u32 bl_scale;
 	u32 bl_min_lvl;
 	u32 unset_bl_level;
+<<<<<<< HEAD
 #if defined(CONFIG_FB_MSM_MDSS_SAMSUNG)
 	u32 need_to_update_unset_bl_level;
 #endif
+=======
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 	bool allow_bl_update;
 	u32 bl_level_scaled;
 	struct mutex bl_lock;
@@ -301,6 +315,10 @@ struct msm_fb_data_type {
 	struct platform_device *pdev;
 
 	u32 mdp_fb_page_protection;
+
+	struct disp_info_notify update;
+	struct disp_info_notify no_update;
+	struct completion power_off_comp;
 
 	struct msm_mdp_interface mdp;
 
@@ -349,6 +367,25 @@ struct msm_fb_data_type {
 	bool sd_skiplayer;
 	int sd_framecnt;
 };
+
+static inline void mdss_fb_update_notify_update(struct msm_fb_data_type *mfd)
+{
+	int needs_complete = 0;
+	mutex_lock(&mfd->update.lock);
+	mfd->update.value = mfd->update.type;
+	needs_complete = mfd->update.value == NOTIFY_TYPE_UPDATE;
+	mutex_unlock(&mfd->update.lock);
+	if (needs_complete) {
+		complete(&mfd->update.comp);
+		mutex_lock(&mfd->no_update.lock);
+		if (mfd->no_update.timer.function)
+			del_timer(&(mfd->no_update.timer));
+
+		mfd->no_update.timer.expires = jiffies + ((1 * HZ) / 10);
+		add_timer(&mfd->no_update.timer);
+		mutex_unlock(&mfd->no_update.lock);
+	}
+}
 
 /* Function returns true for either any kind of dual display */
 static inline bool is_panel_split(struct msm_fb_data_type *mfd)

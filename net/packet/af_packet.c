@@ -524,7 +524,8 @@ static int prb_calc_retire_blk_tmo(struct packet_sock *po,
 			msec = 1;
 			div = speed / 1000;
 		}
-	}
+	} else
+		return DEFAULT_PRB_RETIRE_TOV;
 
 	mbits = (blk_size_in_bytes * 8) / (1024 * 1024);
 
@@ -1394,11 +1395,20 @@ static struct packet_fanout *fanout_release(struct sock *sk)
 	f = po->fanout;
 	if (f) {
 		po->fanout = NULL;
+<<<<<<< HEAD
 
 		if (atomic_dec_and_test(&f->sk_ref))
 			list_del(&f->list);
 		else
 			f = NULL;
+=======
+
+		if (atomic_dec_and_test(&f->sk_ref))
+			list_del(&f->list);
+		else
+			f = NULL;
+
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 	}
 	mutex_unlock(&fanout_mutex);
 
@@ -2119,6 +2129,13 @@ static int tpacket_snd(struct packet_sock *po, struct msghdr *msg)
 
 	mutex_lock(&po->pg_vec_lock);
 
+	/* packet_sendmsg() check on tx_ring.pg_vec was lockless,
+	 * we need to confirm it under protection of pg_vec_lock.
+	 */
+	if (unlikely(!po->tx_ring.pg_vec)) {
+		err = -EBUSY;
+		goto out;
+	}
 	if (likely(saddr == NULL)) {
 		dev	= packet_cached_dev_get(po);
 		proto	= po->num;
@@ -2132,6 +2149,7 @@ static int tpacket_snd(struct packet_sock *po, struct msghdr *msg)
 						sll_addr)))
 			goto out;
 		proto	= saddr->sll_protocol;
+<<<<<<< HEAD
 		dev = dev_get_by_index(sock_net(&po->sk), saddr->sll_ifindex);
 		if (po->sk.sk_socket->type == SOCK_DGRAM) {
 			if (dev && msg->msg_namelen < dev->addr_len +
@@ -2139,6 +2157,12 @@ static int tpacket_snd(struct packet_sock *po, struct msghdr *msg)
 				goto out_put;
 			addr = saddr->sll_addr;
 		}
+=======
+		addr	= saddr->sll_halen ? saddr->sll_addr : NULL;
+		dev = dev_get_by_index(sock_net(&po->sk), saddr->sll_ifindex);
+		if (addr && dev && saddr->sll_halen < dev->addr_len)
+			goto out_put;
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 	}
 
 	err = -ENXIO;
@@ -2148,8 +2172,7 @@ static int tpacket_snd(struct packet_sock *po, struct msghdr *msg)
 	if (unlikely(!(dev->flags & IFF_UP)))
 		goto out_put;
 
-	reserve = dev->hard_header_len;
-
+	reserve = dev->hard_header_len + VLAN_HLEN;
 	size_max = po->tx_ring.frame_size
 		- (po->tp_hdrlen - sizeof(struct sockaddr_ll));
 
@@ -2176,8 +2199,20 @@ static int tpacket_snd(struct packet_sock *po, struct msghdr *msg)
 			goto out_status;
 
 		tp_len = tpacket_fill_skb(po, skb, ph, dev, size_max, proto,
-				addr, hlen);
+					  addr, hlen);
+		if (likely(tp_len >= 0) &&
+		    tp_len > dev->mtu + dev->hard_header_len) {
+			struct ethhdr *ehdr;
+			/* Earlier code assumed this would be a VLAN pkt,
+			 * double-check this now that we have the actual
+			 * packet in hand.
+			 */
 
+			skb_reset_mac_header(skb);
+			ehdr = eth_hdr(skb);
+			if (ehdr->h_proto != htons(ETH_P_8021Q))
+				tp_len = -EMSGSIZE;
+		}
 		if (unlikely(tp_len < 0)) {
 			if (po->tp_loss) {
 				__packet_set_status(po, ph,
@@ -2242,7 +2277,7 @@ static struct sk_buff *packet_alloc_skb(struct sock *sk, size_t prepad,
 		linear = len;
 
 	skb = sock_alloc_send_pskb(sk, prepad + linear, len - linear, noblock,
-				   err);
+				   err, 0);
 	if (!skb)
 		return NULL;
 
@@ -2287,6 +2322,7 @@ static int packet_snd(struct socket *sock,
 		if (msg->msg_namelen < (saddr->sll_halen + offsetof(struct sockaddr_ll, sll_addr)))
 			goto out;
 		proto	= saddr->sll_protocol;
+<<<<<<< HEAD
 		dev = dev_get_by_index(sock_net(sk), saddr->sll_ifindex);
 		if (sock->type == SOCK_DGRAM) {
 			if (dev && msg->msg_namelen < dev->addr_len +
@@ -2294,6 +2330,12 @@ static int packet_snd(struct socket *sock,
 				goto out_unlock;
 			addr = saddr->sll_addr;
 		}
+=======
+		addr	= saddr->sll_halen ? saddr->sll_addr : NULL;
+		dev = dev_get_by_index(sock_net(sk), saddr->sll_ifindex);
+		if (addr && dev && saddr->sll_halen < dev->addr_len)
+			goto out_unlock;
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 	}
 
 	err = -ENXIO;
@@ -2546,6 +2588,7 @@ static int packet_do_bind(struct sock *sk, const char *name, int ifindex,
 			  __be16 protocol)
 {
 	struct packet_sock *po = pkt_sk(sk);
+<<<<<<< HEAD
 	struct net_device *dev_curr;
 	struct net_device *dev = NULL;
 	int ret = 0;
@@ -2555,6 +2598,23 @@ static int packet_do_bind(struct sock *sk, const char *name, int ifindex,
 
 	spin_lock(&po->bind_lock);
 	rcu_read_lock();
+=======
+	int ret = 0;
+
+	lock_sock(sk);
+
+	spin_lock(&po->bind_lock);
+
+	if (po->fanout) {
+		if (dev)
+			dev_put(dev);
+
+		ret = -EINVAL;
+		goto out_unlock;
+	}
+
+	unregister_prot_hook(sk, true);
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 
 	if (po->fanout) {
 		ret = -EINVAL;
@@ -2638,6 +2698,11 @@ static int packet_bind_spkt(struct socket *sock, struct sockaddr *uaddr,
 {
 	struct sock *sk = sock->sk;
 	char name[sizeof(uaddr->sa_data) + 1];
+<<<<<<< HEAD
+=======
+	struct net_device *dev;
+	int err = -ENODEV;
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 
 	/*
 	 *	Check legality
@@ -3206,6 +3271,7 @@ packet_setsockopt(struct socket *sock, int level, int optname, char __user *optv
 		}
 		if (optlen < len) {
 			ret = -EINVAL;
+<<<<<<< HEAD
 		} else {
 			if (pkt_sk(sk)->has_vnet_hdr) {
 				ret = -EINVAL;
@@ -3216,6 +3282,16 @@ packet_setsockopt(struct socket *sock, int level, int optname, char __user *optv
 					ret = packet_set_ring(sk, &req_u, 0,
 							      optname == PACKET_TX_RING);
 			}
+=======
+		} else if (pkt_sk(sk)->has_vnet_hdr) {
+			ret = -EINVAL;
+		} else {
+			if (copy_from_user(&req_u.req, optval, len))
+				ret = -EFAULT;
+			else
+				ret = packet_set_ring(sk, &req_u, 0,
+						    optname == PACKET_TX_RING);
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 		}
 		release_sock(sk);
 		return ret;

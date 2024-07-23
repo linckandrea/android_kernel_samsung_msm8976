@@ -120,6 +120,7 @@ static long swap_inode_boot_loader(struct super_block *sb,
 	struct inode *inode_bl;
 	struct ext4_inode_info *ei_bl;
 	struct ext4_sb_info *sbi = EXT4_SB(sb);
+<<<<<<< HEAD
 	qsize_t size, size_bl, diff;
 	blkcnt_t blocks;
 	unsigned short bytes;
@@ -127,6 +128,24 @@ static long swap_inode_boot_loader(struct super_block *sb,
 	inode_bl = ext4_iget(sb, EXT4_BOOT_LOADER_INO, EXT4_IGET_SPECIAL);
 	if (IS_ERR(inode_bl))
 		return PTR_ERR(inode_bl);
+=======
+
+	if (inode->i_nlink != 1 || !S_ISREG(inode->i_mode)) {
+		err = -EINVAL;
+		goto swap_boot_out;
+	}
+
+	if (!inode_owner_or_capable(inode) || !capable(CAP_SYS_ADMIN)) {
+		err = -EPERM;
+		goto swap_boot_out;
+	}
+
+	inode_bl = ext4_iget(sb, EXT4_BOOT_LOADER_INO);
+	if (IS_ERR(inode_bl)) {
+		err = PTR_ERR(inode_bl);
+		goto swap_boot_out;
+	}
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 	ei_bl = EXT4_I(inode_bl);
 
 	filemap_flush(inode->i_mapping);

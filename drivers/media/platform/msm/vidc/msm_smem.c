@@ -327,6 +327,7 @@ struct msm_smem *msm_smem_user_to_kernel(void *clt, int fd, u32 offset,
 }
 
 bool msm_smem_compare_buffers(void *clt, int fd, void *priv) {
+<<<<<<< HEAD
 	struct smem_client *client = clt;
 	struct ion_handle *handle = NULL;
 	bool ret = false;
@@ -339,6 +340,15 @@ bool msm_smem_compare_buffers(void *clt, int fd, void *priv) {
 	ret = handle == priv;
 	(!IS_ERR_OR_NULL(handle)) ? ion_free(client->clnt, handle) : 0;
 	return ret;
+=======
+    struct smem_client *client = clt;
+    struct ion_handle *handle = NULL;
+    bool ret = false;
+    handle = ion_import_dma_buf(client->clnt, fd);
+    ret = handle == priv;
+    (!IS_ERR_OR_NULL(handle)) ? ion_free(client->clnt, handle) : 0;
+    return ret;
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 }
 
 

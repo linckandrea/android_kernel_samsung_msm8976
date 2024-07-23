@@ -37,7 +37,11 @@ enum zpool_mapmode {
 };
 
 struct zpool *zpool_create_pool(char *type, char *name,
+<<<<<<< HEAD
 			gfp_t gfp, struct zpool_ops *ops);
+=======
+                       gfp_t gfp, struct zpool_ops *ops);
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 
 char *zpool_get_type(struct zpool *pool);
 
@@ -58,9 +62,12 @@ void zpool_unmap_handle(struct zpool *pool, unsigned long handle);
 
 u64 zpool_get_total_size(struct zpool *pool);
 
+<<<<<<< HEAD
 unsigned long zpool_compact(struct zpool *pool);
 
 bool zpool_compactable(struct zpool *pool, unsigned int pages);
+=======
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 
 /**
  * struct zpool_driver - driver implementation for zpool
@@ -98,10 +105,13 @@ struct zpool_driver {
 				enum zpool_mapmode mm);
 	void (*unmap)(void *pool, unsigned long handle);
 
+<<<<<<< HEAD
 	unsigned long (*compact)(void *pool);
 
 	bool (*compactable)(void *pool, unsigned int pages);
 
+=======
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 	u64 (*total_size)(void *pool);
 };
 

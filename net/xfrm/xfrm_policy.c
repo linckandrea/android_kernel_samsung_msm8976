@@ -1092,7 +1092,11 @@ static inline int policy_to_flow_dir(int dir)
 	}
 }
 
+<<<<<<< HEAD
 static struct xfrm_policy *xfrm_sk_policy_lookup(const struct sock *sk, int dir,
+=======
+static struct xfrm_policy *xfrm_sk_policy_lookup(struct sock *sk, int dir,
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 						 const struct flowi *fl, u16 family)
 {
 	struct xfrm_policy *pol;

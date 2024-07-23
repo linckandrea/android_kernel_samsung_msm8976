@@ -283,6 +283,7 @@ ssize_t zcomp_available_show(const char *comp, char *buf)
 
 	while (backends[i]) {
 		if (sysfs_streq(comp, backends[i]->name))
+<<<<<<< HEAD
 			sz += scnprintf(buf + sz, PAGE_SIZE - sz - 2,
 					"[%s] ", backends[i]->name);
 		else
@@ -291,6 +292,14 @@ ssize_t zcomp_available_show(const char *comp, char *buf)
 		i++;
 	}
 	sz += scnprintf(buf + sz, PAGE_SIZE - sz, "\n");
+=======
+			sz += sprintf(buf + sz, "[%s] ", backends[i]->name);
+		else
+			sz += sprintf(buf + sz, "%s ", backends[i]->name);
+		i++;
+	}
+	sz += sprintf(buf + sz, "\n");
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 	return sz;
 }
 

@@ -960,12 +960,15 @@ void xhci_free_virt_devices_depth_first(struct xhci_hcd *xhci, int slot_id)
 	if (!vdev)
 		return;
 
+<<<<<<< HEAD
 	if (vdev->real_port == 0 ||
 			vdev->real_port > HCS_MAX_PORTS(xhci->hcs_params1)) {
 		xhci_dbg(xhci, "Bad vdev->real_port.\n");
 		goto out;
 	}
 
+=======
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 	tt_list_head = &(xhci->rh_bw[vdev->real_port - 1].tts);
 	list_for_each_entry_safe(tt_info, next, tt_list_head, tt_list) {
 		/* is this a hub device that added a tt_info to the tts list */
@@ -979,7 +982,10 @@ void xhci_free_virt_devices_depth_first(struct xhci_hcd *xhci, int slot_id)
 			}
 		}
 	}
+<<<<<<< HEAD
 out:
+=======
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 	/* we are now at a leaf device */
 	xhci_free_virt_device(xhci, slot_id);
 }

@@ -1507,7 +1507,12 @@ static int synaptics_rmi4_f01_init(struct synaptics_rmi4_data *rmi4_data,
 
 	retval = synaptics_rmi4_set_intr_mask(fhandler, fd, intr_count);
 	if (retval < 0)
+<<<<<<< HEAD
 		return -EINVAL;
+=======
+		return retval;
+
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 
 	rmi4_data->f01_query_base_addr = fd->query_base_addr;
 	rmi4_data->f01_ctrl_base_addr = fd->ctrl_base_addr;
@@ -1634,7 +1639,11 @@ static int synaptics_rmi4_f11_init(struct synaptics_rmi4_data *rmi4_data,
 
 	retval = synaptics_rmi4_set_intr_mask(fhandler, fd, intr_count);
 	if (retval < 0)
+<<<<<<< HEAD
 		return -EINVAL;
+=======
+		return retval;
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 
 	abs_data_size = query[5] & MASK_2BIT;
 	abs_data_blk_size = 3 + (2 * (abs_data_size == 0 ? 1 : 0));
@@ -1916,10 +1925,15 @@ static int synaptics_rmi4_f12_init(struct synaptics_rmi4_data *rmi4_data,
 		goto free_function_handler_mem;
 
 	retval = synaptics_rmi4_set_intr_mask(fhandler, fd, intr_count);
+<<<<<<< HEAD
 	if (retval < 0) {
 		retval = -EINVAL;
 		goto free_function_handler_mem;
 	}
+=======
+	if (retval < 0)
+		return retval;
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 
 	/* Allocate memory for finger data storage space */
 	fhandler->data_size = num_of_fingers * size_of_2d_data;
@@ -2079,7 +2093,11 @@ static int synaptics_rmi4_f1a_init(struct synaptics_rmi4_data *rmi4_data,
 
 	retval = synaptics_rmi4_set_intr_mask(fhandler, fd, intr_count);
 	if (retval < 0)
+<<<<<<< HEAD
 		return -EINVAL;
+=======
+		return retval;
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 
 	retval = synaptics_rmi4_f1a_alloc_mem(rmi4_data, fhandler);
 	if (retval < 0)
@@ -3565,10 +3583,18 @@ static int synaptics_rmi4_probe(struct platform_device *pdev)
 	rmi4_data->fingers_on_2d = false;
 	rmi4_data->update_coords = true;
 
+<<<<<<< HEAD
 	rmi4_data->write_buf = devm_kzalloc(&pdev->dev, I2C_WRITE_BUF_MAX_LEN,
 					GFP_KERNEL);
 	if (!rmi4_data->write_buf)
 		return -ENOMEM;
+=======
+	rmi4_data->write_buf = kzalloc(I2C_WRITE_BUF_MAX_LEN, GFP_KERNEL);
+	if (!rmi4_data->write_buf) {
+		retval = -ENOMEM;
+		goto err_write_buf_alloc;
+	}
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 	rmi4_data->write_buf_len = I2C_WRITE_BUF_MAX_LEN;
 
 	rmi4_data->irq_enable = synaptics_rmi4_irq_enable;
@@ -3786,6 +3812,8 @@ err_regulator_enable:
 	regulator_put(rmi4_data->regulator_vdd);
 	regulator_put(rmi4_data->regulator_avdd);
 err_regulator_configure:
+	kfree(rmi4_data->write_buf);
+err_write_buf_alloc:
 	kfree(rmi4_data);
 
 	return retval;
@@ -3880,6 +3908,7 @@ static int synaptics_rmi4_remove(struct platform_device *pdev)
 		regulator_put(rmi4_data->regulator_avdd);
 	}
 
+	kfree(rmi4_data->write_buf);
 	kfree(rmi4_data);
 
 	return 0;

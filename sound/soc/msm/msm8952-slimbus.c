@@ -104,7 +104,6 @@ static void *adsp_state_notifier;
 
 static int msm8952_enable_codec_mclk(struct snd_soc_codec *codec, int enable,
 					bool dapm);
-
 /*
  * Android L spec
  * Need to report LINEIN
@@ -709,7 +708,15 @@ static int slim0_rx_bit_format_put(struct snd_kcontrol *kcontrol,
 static int msm_vi_feed_tx_ch_get(struct snd_kcontrol *kcontrol,
 	struct snd_ctl_elem_value *ucontrol)
 {
-	ucontrol->value.integer.value[0] = (msm_vi_feed_tx_ch/2 - 1);
+	struct snd_soc_codec *codec = snd_kcontrol_chip(kcontrol);
+
+	if (!strcmp(dev_name(codec->dev), "tasha_codec"))
+		ucontrol->value.integer.value[0] =
+					(msm_vi_feed_tx_ch - 1);
+	else
+		ucontrol->value.integer.value[0] =
+					(msm_vi_feed_tx_ch/2 - 1);
+
 	pr_debug("%s: msm_vi_feed_tx_ch = %ld\n", __func__,
 				ucontrol->value.integer.value[0]);
 	return 0;
@@ -718,8 +725,15 @@ static int msm_vi_feed_tx_ch_get(struct snd_kcontrol *kcontrol,
 static int msm_vi_feed_tx_ch_put(struct snd_kcontrol *kcontrol,
 			struct snd_ctl_elem_value *ucontrol)
 {
-	msm_vi_feed_tx_ch =
-		roundup_pow_of_two(ucontrol->value.integer.value[0] + 2);
+	struct snd_soc_codec *codec = snd_kcontrol_chip(kcontrol);
+
+	if (!strcmp(dev_name(codec->dev), "tasha_codec"))
+		msm_vi_feed_tx_ch =
+			ucontrol->value.integer.value[0] + 1;
+	else
+		msm_vi_feed_tx_ch =
+			roundup_pow_of_two(
+				ucontrol->value.integer.value[0] + 2);
 
 	pr_debug("%s: msm_vi_feed_tx_ch = %d\n", __func__, msm_vi_feed_tx_ch);
 	return 1;
@@ -1315,16 +1329,11 @@ int msm_slim_4_tx_be_hw_params_fixup(struct snd_soc_pcm_runtime *rtd,
 	struct snd_soc_codec *codec = rtd->codec;
 
 	pr_debug("%s: codec name: %s", __func__, dev_name(codec->dev));
-	if (!strcmp(dev_name(codec->dev), "tomtom_codec")) {
-		rate->min = rate->max = SAMPLING_RATE_48KHZ;
-		channels->min = channels->max = msm_vi_feed_tx_ch;
-		pr_debug("%s: tomtom vi sample rate = %d\n",
-				__func__, rate->min);
-	} else if (!strcmp(dev_name(codec->dev), "tasha_codec")) {
+	if (!strcmp(dev_name(codec->dev), "tasha_codec")) {
 		param_set_mask(params, SNDRV_PCM_HW_PARAM_FORMAT,
 			SNDRV_PCM_FORMAT_S32_LE);
 		rate->min = rate->max = SAMPLING_RATE_8KHZ;
-		channels->min = channels->max = msm_vi_feed_tx_ch/2;
+		channels->min = channels->max = msm_vi_feed_tx_ch;
 		pr_debug("%s: tasha vi sample rate = %d\n",
 				__func__, rate->min);
 	} else {
@@ -1538,10 +1547,16 @@ static int quat_mi2s_clk_ctl(struct snd_pcm_substream *substream, bool enable)
 
 	if (enable) {
 		if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK) {
+<<<<<<< HEAD
                       mi2s_rx_clk.clk_val2 = Q6AFE_LPASS_OSR_CLK_12_P288_MHZ;
 			if ((mi2s_rx_bit_format == SNDRV_PCM_FORMAT_S24_LE) ||
 				(mi2s_rx_bit_format ==
 						SNDRV_PCM_FORMAT_S24_3LE))
+=======
+			mi2s_rx_clk.clk_val2 = Q6AFE_LPASS_OSR_CLK_12_P288_MHZ;
+			if ((mi2s_rx_bit_format == SNDRV_PCM_FORMAT_S24_LE) ||
+                            (mi2s_rx_bit_format == SNDRV_PCM_FORMAT_S24_3LE))
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 				mi2s_rx_clk.clk_val1 =
 					Q6AFE_LPASS_IBIT_CLK_3_P072_MHZ;
 			else

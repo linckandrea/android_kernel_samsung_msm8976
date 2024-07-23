@@ -2350,7 +2350,11 @@ static inline bool skb_needs_check(struct sk_buff *skb, bool tx_path)
 {
 	if (tx_path)
 		return skb->ip_summed != CHECKSUM_PARTIAL &&
+<<<<<<< HEAD
 		       skb->ip_summed != CHECKSUM_UNNECESSARY;
+=======
+		       skb->ip_summed != CHECKSUM_NONE;
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 
 	return skb->ip_summed == CHECKSUM_NONE;
 }
@@ -2375,8 +2379,13 @@ struct sk_buff *__skb_gso_segment(struct sk_buff *skb,
 		int err;
 
 		/* We're going to init ->check field in TCP or UDP header */
+<<<<<<< HEAD
 		err = skb_cow_head(skb, 0);
 		if (err < 0)
+=======
+		if (skb_header_cloned(skb) &&
+		    (err = pskb_expand_head(skb, 0, 0, GFP_ATOMIC)))
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 			return ERR_PTR(err);
 	}
 
@@ -2386,7 +2395,11 @@ struct sk_buff *__skb_gso_segment(struct sk_buff *skb,
 
 	segs = skb_mac_gso_segment(skb, features);
 
+<<<<<<< HEAD
 	if (unlikely(skb_needs_check(skb, tx_path) && !IS_ERR(segs)))
+=======
+	if (unlikely(skb_needs_check(skb, tx_path)))
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 		skb_warn_bad_offload(skb);
 
 	return segs;
@@ -2891,6 +2904,7 @@ recursion_alert:
 	rc = -ENETDOWN;
 	rcu_read_unlock_bh();
 
+	atomic_long_inc(&dev->tx_dropped);
 	kfree_skb(skb);
 	return rc;
 out:
@@ -3380,6 +3394,22 @@ out:
 	return skb;
 }
 #endif
+
+/**
+ *	netdev_is_rx_handler_busy - check if receive handler is registered
+ *	@dev: device to check
+ *
+ *	Check if a receive handler is already registered for a given device.
+ *	Return true if there one.
+ *
+ *	The caller must hold the rtnl_mutex.
+ */
+bool netdev_is_rx_handler_busy(struct net_device *dev)
+{
+	ASSERT_RTNL();
+	return dev && rtnl_dereference(dev->rx_handler);
+}
+EXPORT_SYMBOL_GPL(netdev_is_rx_handler_busy);
 
 /**
  *	netdev_rx_handler_register - register receive handler
@@ -5663,6 +5693,10 @@ struct rtnl_link_stats64 *dev_get_stats(struct net_device *dev,
 		netdev_stats_to_stats64(storage, &dev->stats);
 	}
 	storage->rx_dropped += (unsigned long)atomic_long_read(&dev->rx_dropped);
+<<<<<<< HEAD
+=======
+	storage->tx_dropped += (unsigned long)atomic_long_read(&dev->tx_dropped);
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 	return storage;
 }
 EXPORT_SYMBOL(dev_get_stats);

@@ -1561,7 +1561,10 @@ static ssize_t fw_image_setup_store(struct device *dev,
 		penv->bmi_test = val;
 	}
 
+<<<<<<< HEAD:drivers/net/wireless/cnss/cnss_pci.c
 	pr_info("%s: Firmware setup completed\n", __func__);
+=======
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7:drivers/net/wireless/cnss/cnss.c
 	mutex_unlock(&penv->fw_setup_stat_lock);
 	return count;
 }
@@ -1686,6 +1689,7 @@ static void cnss_wlan_memory_expansion(void)
 	cnss_seg_info = penv->cnss_seg_info;
 
 	if (!cnss_seg_info) {
+		mutex_unlock(&penv->fw_setup_stat_lock);
 		pr_debug("cnss: cnss_seg_info is NULL\n");
 		mutex_unlock(&penv->fw_setup_stat_lock);
 		goto end;
@@ -1699,7 +1703,11 @@ static void cnss_wlan_memory_expansion(void)
 
 	if (request_firmware(&fw_entry, filename, dev) != 0) {
 		mutex_unlock(&penv->fw_setup_stat_lock);
+<<<<<<< HEAD:drivers/net/wireless/cnss/cnss_pci.c
 		pr_err("cnss:failed to get fw: %s\n", filename);
+=======
+		pr_err("cnss: failed to get fw: %s\n", filename);
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7:drivers/net/wireless/cnss/cnss.c
 		goto end;
 	}
 

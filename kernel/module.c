@@ -3709,9 +3709,12 @@ static int load_module(struct load_info *info, const char __user *uargs,
 {
 	struct module *mod;
 	long err;
+<<<<<<< HEAD
 #ifdef CONFIG_TIMA_LKMAUTH
 	unsigned long module_len = info->len;
 #endif
+=======
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 	char *after_dashes;
 
 	err = module_sig_check(info, flags);

@@ -12,6 +12,10 @@
 #ifndef DM_VERITY_FEC_H
 #define DM_VERITY_FEC_H
 
+<<<<<<< HEAD
+=======
+#include "dm.h"
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 #include "dm-verity.h"
 #include <linux/rslib.h>
 
@@ -27,6 +31,12 @@
 #define DM_VERITY_FEC_BUF_MAX \
 	(1 << (PAGE_SHIFT - DM_VERITY_FEC_BUF_RS_BITS))
 
+<<<<<<< HEAD
+=======
+/* maximum recursion level for verity_fec_decode */
+#define DM_VERITY_FEC_MAX_RECURSION	4
+
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 #define DM_VERITY_OPT_FEC_DEV		"use_fec_from_device"
 #define DM_VERITY_OPT_FEC_BLOCKS	"fec_blocks"
 #define DM_VERITY_OPT_FEC_START		"fec_start"
@@ -48,6 +58,11 @@ struct dm_verity_fec {
 	mempool_t *extra_pool;	/* mempool for extra buffers */
 	mempool_t *output_pool;	/* mempool for output */
 	struct kmem_cache *cache;	/* cache for buffers */
+<<<<<<< HEAD
+=======
+	atomic_t corrected;		/* corrected errors */
+	struct dm_kobject_holder kobj_holder;	/* for sysfs attributes */
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 };
 
 /* per-bio data */
@@ -58,6 +73,10 @@ struct dm_verity_fec_io {
 	unsigned nbufs;		/* number of buffers allocated */
 	u8 *output;		/* buffer for corrected output */
 	size_t output_pos;
+<<<<<<< HEAD
+=======
+	unsigned level;		/* recursion level */
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 };
 
 #ifdef CONFIG_DM_VERITY_FEC

@@ -59,9 +59,12 @@ static int try_to_freeze_tasks(bool user_only)
 
 			if (!freezer_should_skip(p))
 				todo++;
+<<<<<<< HEAD
 #if defined(CONFIG_SEC_PM_DEBUG)
                                 q = p;
 #endif /* CONFIG_SEC_PM_DEBUG */
+=======
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 		}
 		read_unlock(&tasklist_lock);
 
@@ -175,6 +178,7 @@ int freeze_processes(void)
 	if (!pm_freezing)
 		atomic_inc(&system_freezing_cnt);
 
+	pm_wakeup_clear();
 	printk("Freezing user space processes ... ");
 	pm_freezing = true;
 	oom_kills_saved = oom_kills_count();

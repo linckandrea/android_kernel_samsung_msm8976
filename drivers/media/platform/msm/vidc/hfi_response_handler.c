@@ -749,6 +749,21 @@ static enum vidc_status hfi_parse_init_done_properties(
 		} \
 })
 
+#define VALIDATE_PROPERTY_STRUCTURE_SIZE(pkt_size, property_size) ({\
+		if (pkt_size < property_size) { \
+			status = VIDC_ERR_BAD_PARAM; \
+			break; \
+		} \
+})
+
+#define VALIDATE_PROPERTY_PAYLOAD_SIZE(pkt_size, payload_size, \
+		property_count) ({\
+		if (pkt_size/payload_size < property_count) { \
+			status = VIDC_ERR_BAD_PARAM; \
+			break; \
+		} \
+})
+
 	while (status == VIDC_ERR_NONE && num_properties &&
 			rem_bytes >= sizeof(u32)) {
 
@@ -781,11 +796,18 @@ static enum vidc_status hfi_parse_init_done_properties(
 			VALIDATE_PROPERTY_STRUCTURE_SIZE(rem_bytes -
 					next_offset,
 					sizeof(*prop));
+<<<<<<< HEAD
 
+=======
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 			VALIDATE_PROPERTY_PAYLOAD_SIZE(rem_bytes -
 					next_offset - sizeof(u32),
 					sizeof(struct hfi_capability_supported),
 					prop->num_capabilities);
+<<<<<<< HEAD
+=======
+
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 			next_offset += sizeof(u32) +
 				prop->num_capabilities *
 				sizeof(struct hfi_capability_supported);
@@ -871,6 +893,7 @@ static enum vidc_status hfi_parse_init_done_properties(
 			struct hfi_profile_level_supported *prop =
 				(struct hfi_profile_level_supported *)
 				(data_ptr + next_offset);
+<<<<<<< HEAD
 			VALIDATE_PROPERTY_STRUCTURE_SIZE(rem_bytes -
 					next_offset,
 					sizeof(*prop));
@@ -879,8 +902,22 @@ static enum vidc_status hfi_parse_init_done_properties(
 					sizeof(u32),
 					sizeof(struct hfi_profile_level),
 					prop->profile_count);
+=======
+
+			VALIDATE_PROPERTY_STRUCTURE_SIZE(rem_bytes -
+					next_offset,
+					sizeof(*prop));
+
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 			ptr = (char *) &prop->rg_profile_level[0];
 			prof_count = prop->profile_count;
+
+			VALIDATE_PROPERTY_PAYLOAD_SIZE(rem_bytes -
+					next_offset -
+					sizeof(u32),
+					sizeof(struct hfi_profile_level),
+					prop->profile_count);
+
 			next_offset += sizeof(u32);
 
 			if (prof_count > MAX_PROFILE_COUNT) {
@@ -920,7 +957,10 @@ static enum vidc_status hfi_parse_init_done_properties(
 			VALIDATE_PROPERTY_STRUCTURE_SIZE(rem_bytes -
 					next_offset,
 					sizeof(struct hfi_nal_stream_format_supported));
+<<<<<<< HEAD
 
+=======
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 			next_offset +=
 				sizeof(struct hfi_nal_stream_format_supported);
 			num_properties--;
@@ -967,15 +1007,24 @@ static enum vidc_status hfi_parse_init_done_properties(
 					sizeof(u32), sizeof(u32),
 					prop->num_entries);
 
+			VALIDATE_PROPERTY_STRUCTURE_SIZE(rem_bytes -
+					next_offset,
+					sizeof(*prop));
+			next_offset += sizeof(struct hfi_buffer_alloc_mode_supported);
 			if (prop->num_entries >= 32) {
 				dprintk(VIDC_ERR,
 					"%s - num_entries: %d from f/w seems suspect\n",
 					__func__, prop->num_entries);
 				break;
 			}
+
+			VALIDATE_PROPERTY_PAYLOAD_SIZE(rem_bytes -
+					next_offset +
+					sizeof(u32),
+					sizeof(u32),
+					prop->num_entries);
 			next_offset +=
-				sizeof(struct hfi_buffer_alloc_mode_supported) -
-				sizeof(u32) + prop->num_entries * sizeof(u32);
+				 prop->num_entries * sizeof(u32) - sizeof(u32);
 
 			copy_alloc_mode_to_sessions(prop,
 					capabilities, num_sessions,

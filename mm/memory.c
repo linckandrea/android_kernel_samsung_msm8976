@@ -132,7 +132,7 @@ static int __init init_zero_pfn(void)
 	zero_pfn = page_to_pfn(ZERO_PAGE(0));
 	return 0;
 }
-core_initcall(init_zero_pfn);
+early_initcall(init_zero_pfn);
 
 
 #if defined(SPLIT_RSS_COUNTING)
@@ -1471,6 +1471,7 @@ int zap_vma_ptes(struct vm_area_struct *vma, unsigned long address,
 }
 EXPORT_SYMBOL_GPL(zap_vma_ptes);
 
+<<<<<<< HEAD
 #ifdef CONFIG_CMA_PINPAGE_MIGRATION
 static struct page *__alloc_nonmovable_userpage(struct page *page,
 				unsigned long private, int **result)
@@ -1543,6 +1544,8 @@ static int __migrate_cma_pinpage(struct page *page, struct vm_area_struct *vma)
 }
 #endif
 
+=======
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 /*
  * FOLL_FORCE can write to even unwritable pte's, but only
  * after we've gone through a COW cycle and they are dirty.

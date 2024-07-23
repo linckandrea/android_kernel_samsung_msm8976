@@ -685,6 +685,7 @@ int scm_call2(u32 fn_id, struct scm_desc *desc)
 
 		desc->ret[0] = desc->ret[1] = desc->ret[2] = 0;
 
+<<<<<<< HEAD
 #ifdef CONFIG_TIMA_LKMAUTH
 		if ((pid_from_lkm == current_thread_info()->task->pid) || (call_from_ss_daemon)) {
 #else
@@ -702,6 +703,8 @@ int scm_call2(u32 fn_id, struct scm_desc *desc)
 		}
 
 
+=======
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 		if (scm_version == SCM_ARMV8_64)
 			ret = __scm_call_armv8_64(x0, desc->arginfo,
 						  desc->args[0], desc->args[1],

@@ -1248,6 +1248,15 @@ next_page:
 	return 0;
 }
 
+static int get_data_block_bmap(struct inode *inode, sector_t iblock,
+			struct buffer_head *bh_result, int create)
+{
+	/* Block number less than F2FS MAX BLOCKS */
+	if (unlikely(iblock >= max_file_size(0)))
+		return -EFBIG;
+	return get_data_block_ro(inode, iblock, bh_result, create);
+}
+
 static int f2fs_read_data_page(struct file *file, struct page *page)
 {
 	struct inode *inode = page->mapping->host;
@@ -2049,6 +2058,7 @@ static int f2fs_set_data_page_dirty(struct page *page)
 
 static sector_t f2fs_bmap(struct address_space *mapping, sector_t block)
 {
+<<<<<<< HEAD
 	struct inode *inode = mapping->host;
 
 	if (f2fs_has_inline_data(inode))
@@ -2058,6 +2068,8 @@ static sector_t f2fs_bmap(struct address_space *mapping, sector_t block)
 	if (mapping_tagged(mapping, PAGECACHE_TAG_DIRTY))
 		filemap_write_and_wait(mapping);
 
+=======
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 	return generic_block_bmap(mapping, block, get_data_block_bmap);
 }
 

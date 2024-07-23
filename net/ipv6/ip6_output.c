@@ -195,6 +195,7 @@ int ip6_xmit(struct sock *sk, struct sk_buff *skb, struct flowi6 *fl6,
 	if (opt)
 		head_room += opt->opt_nflen + opt->opt_flen;
 
+<<<<<<< HEAD
 	if (unlikely(skb_headroom(skb) < head_room)) {
 		struct sk_buff *skb2 = skb_realloc_headroom(skb, head_room);
 		if (!skb2) {
@@ -202,6 +203,27 @@ int ip6_xmit(struct sock *sk, struct sk_buff *skb, struct flowi6 *fl6,
 				      IPSTATS_MIB_OUTDISCARDS);
 			kfree_skb(skb);
 			return -ENOBUFS;
+=======
+		/* First: exthdrs may take lots of space (~8K for now)
+		   MAX_HEADER is not enough.
+		 */
+		head_room = opt->opt_nflen + opt->opt_flen;
+		seg_len += head_room;
+		head_room += sizeof(struct ipv6hdr) + LL_RESERVED_SPACE(dst->dev);
+
+		if (skb_headroom(skb) < head_room) {
+			struct sk_buff *skb2 = skb_realloc_headroom(skb, head_room);
+			if (skb2 == NULL) {
+				IP6_INC_STATS(net, ip6_dst_idev(skb_dst(skb)),
+					      IPSTATS_MIB_OUTDISCARDS);
+				kfree_skb(skb);
+				return -ENOBUFS;
+			}
+			if (skb->sk)
+				skb_set_owner_w(skb2, skb->sk);
+			consume_skb(skb);
+			skb = skb2;
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 		}
 		if (skb->sk)
 			skb_set_owner_w(skb2, skb->sk);

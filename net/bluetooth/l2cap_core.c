@@ -3599,16 +3599,25 @@ static int l2cap_parse_conf_rsp(struct l2cap_chan *chan, void *rsp, int len,
 				chan->imtu = L2CAP_DEFAULT_MIN_MTU;
 			} else
 				chan->imtu = val;
+<<<<<<< HEAD
 			l2cap_add_conf_opt(&ptr, L2CAP_CONF_MTU, 2, chan->imtu,
 					   endptr - ptr);
+=======
+			l2cap_add_conf_opt(&ptr, L2CAP_CONF_MTU, 2, chan->imtu, endptr - ptr);
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 			break;
 
 		case L2CAP_CONF_FLUSH_TO:
 			if (olen != 2)
 				break;
 			chan->flush_to = val;
+<<<<<<< HEAD
 			l2cap_add_conf_opt(&ptr, L2CAP_CONF_FLUSH_TO, 2,
 					   chan->flush_to, endptr - ptr);
+=======
+			l2cap_add_conf_opt(&ptr, L2CAP_CONF_FLUSH_TO,
+					   2, chan->flush_to, endptr - ptr);
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 			break;
 
 		case L2CAP_CONF_RFC:
@@ -3619,8 +3628,14 @@ static int l2cap_parse_conf_rsp(struct l2cap_chan *chan, void *rsp, int len,
 			    rfc.mode != chan->mode)
 				return -ECONNREFUSED;
 			chan->fcs = 0;
+<<<<<<< HEAD
 			l2cap_add_conf_opt(&ptr, L2CAP_CONF_RFC, sizeof(rfc),
 					   (unsigned long) &rfc, endptr - ptr);
+=======
+
+			l2cap_add_conf_opt(&ptr, L2CAP_CONF_RFC,
+					   sizeof(rfc), (unsigned long) &rfc, endptr - ptr);
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 			break;
 
 		case L2CAP_CONF_EWS:

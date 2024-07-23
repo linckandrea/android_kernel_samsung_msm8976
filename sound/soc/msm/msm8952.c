@@ -89,8 +89,11 @@ static int msm8952_wsa_switch_event(struct snd_soc_dapm_widget *w,
 			      struct snd_kcontrol *kcontrol, int event);
 static int msm8952_ext_audio_switch_event(struct snd_soc_dapm_widget *w,
 			      struct snd_kcontrol *kcontrol, int event);
+<<<<<<< HEAD
 
 #ifndef CONFIG_SAMSUNG_JACK
+=======
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 /*
  * Android L spec
  * Need to report LINEIN
@@ -618,6 +621,7 @@ static uint32_t get_mi2s_rx_clk_val(int port_id)
 }
 
 
+<<<<<<< HEAD
 #ifdef CONFIG_AUDIO_SPEAKER_OUT_NXP_AMP_ENABLE
 static int msm_q6_enable_mi2s_clocks(bool enable)
 {
@@ -653,6 +657,8 @@ static int msm_q6_enable_mi2s_clocks(bool enable)
 #endif /* CONFIG_AUDIO_SPEAKER_OUT_NXP_AMP_ENABLE */
 
 
+=======
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 static int msm_mi2s_sclk_ctl(struct snd_pcm_substream *substream, bool enable)
 {
 #ifdef CONFIG_AUDIO_SPEAKER_OUT_NXP_AMP_ENABLE
@@ -677,10 +683,13 @@ static int msm_mi2s_sclk_ctl(struct snd_pcm_substream *substream, bool enable)
 						get_mi2s_rx_clk_val(port_id);
 				ret = afe_set_lpass_clock(port_id,
 							&mi2s_rx_clk_v1);
+<<<<<<< HEAD
 #ifdef CONFIG_AUDIO_SPEAKER_OUT_NXP_AMP_ENABLE
 			if (pdata->ext_pa & QUIN_MI2S_ID)
 				msm_q6_enable_mi2s_clocks(true);
 #endif /* CONFIG_AUDIO_SPEAKER_OUT_NXP_AMP_ENABLE */
+=======
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 				break;
 			case (Q6_SUBSYS_AVS2_7):
 				mi2s_rx_clk.enable = enable;
@@ -690,10 +699,13 @@ static int msm_mi2s_sclk_ctl(struct snd_pcm_substream *substream, bool enable)
 						get_mi2s_rx_clk_val(port_id);
 				ret = afe_set_lpass_clock_v2(port_id,
 							&mi2s_rx_clk);
+<<<<<<< HEAD
 #ifdef CONFIG_AUDIO_SPEAKER_OUT_NXP_AMP_ENABLE
 			if (pdata->ext_pa & QUIN_MI2S_ID)
 				msm_q6_enable_mi2s_clocks(true);
 #endif /* CONFIG_AUDIO_SPEAKER_OUT_NXP_AMP_ENABLE */
+=======
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 				break;
 			case (Q6_SUBSYS_INVALID):
 			default:
@@ -701,7 +713,10 @@ static int msm_mi2s_sclk_ctl(struct snd_pcm_substream *substream, bool enable)
 				pr_err("%s: INVALID AVS IMAGE\n", __func__);
 				break;
 			}
+<<<<<<< HEAD
 
+=======
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 		} else if (substream->stream == SNDRV_PCM_STREAM_CAPTURE) {
 			switch (q6core_get_avs_version()) {
 			case (Q6_SUBSYS_AVS2_6):
@@ -735,20 +750,26 @@ static int msm_mi2s_sclk_ctl(struct snd_pcm_substream *substream, bool enable)
 		if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK) {
 			switch (q6core_get_avs_version()) {
 			case (Q6_SUBSYS_AVS2_6):
+<<<<<<< HEAD
 #ifdef CONFIG_AUDIO_SPEAKER_OUT_NXP_AMP_ENABLE
 			if (pdata->ext_pa & QUIN_MI2S_ID)
 				msm_q6_enable_mi2s_clocks(false);
 #endif /* CONFIG_AUDIO_SPEAKER_OUT_NXP_AMP_ENABLE */
+=======
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 				mi2s_rx_clk_v1.clk_val1 =
 						Q6AFE_LPASS_IBIT_CLK_DISABLE;
 				ret = afe_set_lpass_clock(port_id,
 							&mi2s_rx_clk_v1);
 				break;
 			case (Q6_SUBSYS_AVS2_7):
+<<<<<<< HEAD
 #ifdef CONFIG_AUDIO_SPEAKER_OUT_NXP_AMP_ENABLE
 			if (pdata->ext_pa & QUIN_MI2S_ID)
 				msm_q6_enable_mi2s_clocks(false);
 #endif /* CONFIG_AUDIO_SPEAKER_OUT_NXP_AMP_ENABLE */
+=======
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 				mi2s_rx_clk.enable = enable;
 				mi2s_rx_clk.clk_id =
 						msm8952_get_clk_id(port_id);

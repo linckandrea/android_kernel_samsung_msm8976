@@ -230,7 +230,7 @@ static void __remove_shared_vm_struct(struct vm_area_struct *vma,
 	if (vma->vm_flags & VM_DENYWRITE)
 		atomic_inc(&file_inode(file)->i_writecount);
 	if (vma->vm_flags & VM_SHARED)
-		mapping->i_mmap_writable--;
+		mapping_unmap_writable(mapping);
 
 	flush_dcache_mmap_lock(mapping);
 	if (unlikely(vma->vm_flags & VM_NONLINEAR))
@@ -446,6 +446,7 @@ static void validate_mm(struct mm_struct *mm)
 	while (vma) {
 		struct anon_vma *anon_vma = vma->anon_vma;
 		struct anon_vma_chain *avc;
+<<<<<<< HEAD
 
 		if (anon_vma) {
 			anon_vma_lock_read(anon_vma);
@@ -454,6 +455,12 @@ static void validate_mm(struct mm_struct *mm)
 			anon_vma_unlock_read(anon_vma);
 		}
 
+=======
+		vma_lock_anon_vma(vma);
+		list_for_each_entry(avc, &vma->anon_vma_chain, same_vma)
+			anon_vma_interval_tree_verify(avc);
+		vma_unlock_anon_vma(vma);
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 		highest_address = vm_end_gap(vma);
 		vma = vma->vm_next;
 		i++;
@@ -650,7 +657,7 @@ static void __vma_link_file(struct vm_area_struct *vma)
 		if (vma->vm_flags & VM_DENYWRITE)
 			atomic_dec(&file_inode(file)->i_writecount);
 		if (vma->vm_flags & VM_SHARED)
-			mapping->i_mmap_writable++;
+			atomic_inc(&mapping->i_mmap_writable);
 
 		flush_dcache_mmap_lock(mapping);
 		if (unlikely(vma->vm_flags & VM_NONLINEAR))
@@ -1345,15 +1352,31 @@ unsigned long do_mmap_pgoff(struct file *file, unsigned long addr,
 		if (!can_do_mlock())
 			return -EPERM;
 
+<<<<<<< HEAD
 	if (mlock_future_check(mm, vm_flags, len))
 		return -EAGAIN;
+=======
+	/* mlock MCL_FUTURE? */
+	if (vm_flags & VM_LOCKED) {
+		unsigned long locked, lock_limit;
+		locked = len >> PAGE_SHIFT;
+		locked += mm->locked_vm;
+		lock_limit = rlimit(RLIMIT_MEMLOCK);
+		lock_limit >>= PAGE_SHIFT;
+		if (locked > lock_limit && !capable(CAP_IPC_LOCK))
+			return -EAGAIN;
+	}
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 
 	if (file) {
 		struct inode *inode = file_inode(file);
 
+<<<<<<< HEAD
 		if (!file_mmap_ok(file, inode, pgoff, len))
 			return -EOVERFLOW;
 
+=======
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 		switch (flags & MAP_TYPE) {
 		case MAP_SHARED:
 			if ((prot&PROT_WRITE) && !(file->f_mode&FMODE_WRITE))
@@ -1639,6 +1662,17 @@ munmap_back:
 			if (error)
 				goto free_vma;
 		}
+		if (vm_flags & VM_SHARED) {
+			error = mapping_map_writable(file->f_mapping);
+			if (error)
+				goto allow_write_and_free_vma;
+		}
+
+		/* ->mmap() can change vma->vm_file, but must guarantee that
+		 * vma_link() below can deny write-access if VM_DENYWRITE is set
+		 * and map writably if VM_SHARED is set. This usually means the
+		 * new file must not have been exposed to user-space, yet.
+		 */
 		vma->vm_file = get_file(file);
 		error = file->f_op->mmap(file, vma);
 		if (error)
@@ -1678,8 +1712,17 @@ munmap_back:
 
 	vma_link(mm, vma, prev, rb_link, rb_parent);
 	/* Once vma denies write, undo our temporary denial count */
+<<<<<<< HEAD
 	if (vm_flags & VM_DENYWRITE)
 		allow_write_access(file);
+=======
+	if (file) {
+		if (vm_flags & VM_SHARED)
+			mapping_unmap_writable(file->f_mapping);
+		if (vm_flags & VM_DENYWRITE)
+			allow_write_access(file);
+	}
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 	file = vma->vm_file;
 out:
 	perf_event_mmap(vma);
@@ -1699,14 +1742,22 @@ out:
 	return addr;
 
 unmap_and_free_vma:
+<<<<<<< HEAD
 	if (vm_flags & VM_DENYWRITE)
 		allow_write_access(file);
+=======
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 	vma->vm_file = NULL;
 	fput(file);
 
 	/* Undo any partial mapping done by a device driver. */
 	unmap_region(mm, vma, prev, vma->vm_start, vma->vm_end);
 	charged = 0;
+	if (vm_flags & VM_SHARED)
+		mapping_unmap_writable(file->f_mapping);
+allow_write_and_free_vma:
+	if (vm_flags & VM_DENYWRITE)
+		allow_write_access(file);
 free_vma:
 	kmem_cache_free(vm_area_cachep, vma);
 unacct_error:
@@ -2189,8 +2240,12 @@ int expand_upwards(struct vm_area_struct *vma, unsigned long address)
 		gap_addr = TASK_SIZE;
 
 	next = vma->vm_next;
+<<<<<<< HEAD
 	if (next && next->vm_start < gap_addr &&
 			(next->vm_flags & (VM_WRITE|VM_READ|VM_EXEC))) {
+=======
+	if (next && next->vm_start < gap_addr) {
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 		if (!(next->vm_flags & VM_GROWSUP))
 			return -ENOMEM;
 		/* Check that both stack segments have the same anon_vma? */
@@ -2205,7 +2260,11 @@ int expand_upwards(struct vm_area_struct *vma, unsigned long address)
 	 * is required to hold the mmap_sem in read mode.  We need the
 	 * anon_vma lock to serialize against concurrent expand_stacks.
 	 */
+<<<<<<< HEAD
 	anon_vma_lock_write(vma->anon_vma);
+=======
+	vma_lock_anon_vma(vma);
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 
 	/* Somebody else might have raced and expanded it already */
 	if (address > vma->vm_end) {
@@ -2257,19 +2316,35 @@ int expand_downwards(struct vm_area_struct *vma,
 				   unsigned long address)
 {
 	struct vm_area_struct *prev;
+<<<<<<< HEAD
 	int error = 0;
+=======
+	unsigned long gap_addr;
+	int error;
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 
 	address &= PAGE_MASK;
 	if (address < mmap_min_addr)
 		return -EPERM;
 
 	/* Enforce stack_guard_gap */
+<<<<<<< HEAD
 	prev = vma->vm_prev;
 	/* Check that both stack segments have the same anon_vma? */
 	if (prev && !(prev->vm_flags & VM_GROWSDOWN) &&
 			(prev->vm_flags & (VM_WRITE|VM_READ|VM_EXEC))) {
 		if (address - prev->vm_end < stack_guard_gap)
 			return -ENOMEM;
+=======
+	gap_addr = address - stack_guard_gap;
+	if (gap_addr > address)
+		return -ENOMEM;
+	prev = vma->vm_prev;
+	if (prev && prev->vm_end > gap_addr) {
+		if (!(prev->vm_flags & VM_GROWSDOWN))
+			return -ENOMEM;
+		/* Check that both stack segments have the same anon_vma? */
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 	}
 
 	/* We must make sure the anon_vma is allocated. */
@@ -2281,7 +2356,11 @@ int expand_downwards(struct vm_area_struct *vma,
 	 * is required to hold the mmap_sem in read mode.  We need the
 	 * anon_vma lock to serialize against concurrent expand_stacks.
 	 */
+<<<<<<< HEAD
 	anon_vma_lock_write(vma->anon_vma);
+=======
+	vma_lock_anon_vma(vma);
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 
 	/* Somebody else might have raced and expanded it already */
 	if (address < vma->vm_start) {

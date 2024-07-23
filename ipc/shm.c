@@ -1097,6 +1097,7 @@ long do_shmat(int shmid, char __user *shmaddr, int shmflg,
 		goto out;
 	else if ((addr = (ulong)shmaddr)) {
 		if (addr & (shmlba - 1)) {
+<<<<<<< HEAD
 			if (shmflg & SHM_RND) {
 				addr &= ~(shmlba - 1);  /* round down */
 
@@ -1108,6 +1109,16 @@ long do_shmat(int shmid, char __user *shmaddr, int shmflg,
 				if (!addr && (shmflg & SHM_REMAP))
 					goto out;
 			} else
+=======
+			/*
+			 * Round down to the nearest multiple of shmlba.
+			 * For sane do_mmap_pgoff() parameters, avoid
+			 * round downs that trigger nil-page and MAP_FIXED.
+			 */
+			if ((shmflg & SHM_RND) && addr >= shmlba)
+				addr &= ~(shmlba - 1);
+			else
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 #ifndef __ARCH_FORCE_SHMLBA
 				if (addr & ~PAGE_MASK)
 #endif

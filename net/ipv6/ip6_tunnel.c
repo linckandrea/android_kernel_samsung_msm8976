@@ -111,12 +111,20 @@ static struct net_device_stats *ip6_get_stats(struct net_device *dev)
 		const struct pcpu_tstats *tstats = per_cpu_ptr(dev->tstats, i);
 
 		do {
+<<<<<<< HEAD
 			start = u64_stats_fetch_begin_bh(&tstats->syncp);
+=======
+			start = u64_stats_fetch_begin_irq(&tstats->syncp);
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 			tmp.rx_packets = tstats->rx_packets;
 			tmp.rx_bytes = tstats->rx_bytes;
 			tmp.tx_packets = tstats->tx_packets;
 			tmp.tx_bytes =  tstats->tx_bytes;
+<<<<<<< HEAD
 		} while (u64_stats_fetch_retry_bh(&tstats->syncp, start));
+=======
+		} while (u64_stats_fetch_retry_irq(&tstats->syncp, start));
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 
 		sum.rx_packets += tmp.rx_packets;
 		sum.rx_bytes   += tmp.rx_bytes;
@@ -309,11 +317,13 @@ static struct ip6_tnl *ip6_tnl_create(struct net *net, struct __ip6_tnl_parm *p)
 	char name[IFNAMSIZ];
 	int err;
 
-	if (p->name[0])
+	if (p->name[0]) {
+		if (!dev_valid_name(p->name))
+			goto failed;
 		strlcpy(name, p->name, IFNAMSIZ);
-	else
+	} else {
 		sprintf(name, "ip6tnl%%d");
-
+	}
 	dev = alloc_netdev(sizeof (*t), name, ip6_tnl_dev_setup);
 	if (dev == NULL)
 		goto failed;
@@ -1091,7 +1101,10 @@ ip4ip6_tnl_xmit(struct sk_buff *skb, struct net_device *dev)
 		return -1;
 
 	iph = ip_hdr(skb);
+<<<<<<< HEAD
 
+=======
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 	if ((t->parms.proto != IPPROTO_IPIP && t->parms.proto != 0) ||
 	    !ip6_tnl_xmit_ctl(t))
 		return -1;
@@ -1519,11 +1532,18 @@ static inline int
 ip6_tnl_dev_init_gen(struct net_device *dev)
 {
 	struct ip6_tnl *t = netdev_priv(dev);
+	int i;
 
 	t->dev = dev;
 	dev->tstats = alloc_percpu(struct pcpu_tstats);
 	if (!dev->tstats)
 		return -ENOMEM;
+
+	for_each_possible_cpu(i) {
+		struct pcpu_tstats *ip6_tnl_stats;
+		ip6_tnl_stats = per_cpu_ptr(dev->tstats, i);
+		u64_stats_init(&ip6_tnl_stats->syncp);
+	}
 	return 0;
 }
 

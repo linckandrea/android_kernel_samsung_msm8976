@@ -286,7 +286,11 @@ static void mdss_dump_debug_bus(u32 bus_dump_flag,
 
 }
 
+<<<<<<< HEAD
 void mdss_dump_reg(u32 reg_dump_flag,
+=======
+static void mdss_dump_reg(u32 reg_dump_flag,
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 	char *addr, int len, u32 **dump_mem, bool atomic_context)
 {
 	struct mdss_data_type *mdata = mdss_mdp_get_mdata();
@@ -334,10 +338,14 @@ void mdss_dump_reg(u32 reg_dump_flag,
 
 #if defined(CONFIG_FB_MSM_MDSS_SAMSUNG)
 		if (in_log)
+<<<<<<< HEAD
 			pr_err("%04x : %08x %08x %08x %08x\n", i * 16, x0, x4, x8, xc);
 #else
 		if (in_log)
 			pr_err("%pK : %08x %08x %08x %08x\n", addr, x0, x4, x8,
+=======
+			pr_info("%pK : %08x %08x %08x %08x\n", addr, x0, x4, x8,
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 				xc);
 #endif
 
@@ -385,8 +393,13 @@ static void mdss_dump_reg_by_ranges(struct mdss_debug_base *dbg,
 		}
 	} else {
 		/* If there is no list to dump ranges, dump all registers */
+<<<<<<< HEAD
 		pr_err("Ranges not found, will dump full registers");
 		pr_err("base:0x%pK len:0x%zu\n", dbg->base, dbg->max_offset);
+=======
+		pr_info("Ranges not found, will dump full registers");
+		pr_info("base:0x%pK len:0x%zu\n", dbg->base, dbg->max_offset);
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 		addr = dbg->base;
 		len = dbg->max_offset;
 		mdss_dump_reg(reg_dump_flag, addr, len, &dbg->reg_dump,

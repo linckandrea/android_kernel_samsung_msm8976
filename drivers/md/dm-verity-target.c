@@ -202,11 +202,14 @@ static int verity_handle_err(struct dm_verity *v, enum verity_block_type type,
 
 	/* Corruption should be visible in device status in all modes */
 	v->hash_failed = 1;
+<<<<<<< HEAD
 	
 	if(block == 0){
         DMERR("%s: block 0 is superblock. Skipping verity_handle_err" , v->data_dev->name);
         return 0 ;
 	}
+=======
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 
 	if (v->corrupted_errs >= DM_VERITY_MAX_CORRUPTED_ERRS)
 		goto out;
@@ -524,6 +527,7 @@ static void verity_prefetch_io(struct work_struct *work)
 		container_of(work, struct dm_verity_prefetch_work, work);
 	struct dm_verity *v = pw->v;
 	int i;
+	sector_t prefetch_size;
 
 	for (i = v->levels - 2; i >= 0; i--) {
 		sector_t hash_block_start;
@@ -546,8 +550,14 @@ static void verity_prefetch_io(struct work_struct *work)
 				hash_block_end = v->hash_blocks - 1;
 		}
 no_prefetch_cluster:
+		// for emmc, it is more efficient to send bigger read
+		prefetch_size = max((sector_t)CONFIG_DM_VERITY_HASH_PREFETCH_MIN_SIZE,
+			hash_block_end - hash_block_start + 1);
+		if ((hash_block_start + prefetch_size) >= (v->hash_start + v->hash_blocks)) {
+			prefetch_size = hash_block_end - hash_block_start + 1;
+		}
 		dm_bufio_prefetch(v->bufio, hash_block_start,
-				  hash_block_end - hash_block_start + 1);
+				  prefetch_size);
 	}
 
 	kfree(pw);
@@ -1021,7 +1031,24 @@ int verity_ctr(struct dm_target *ti, unsigned argc, char **argv)
 	argc -= 10;
 
 	/* Optional parameters */
+<<<<<<< HEAD
 	if (argc) {
+		as.argc = argc;
+		as.argv = argv;
+
+		r = verity_parse_opt_args(&as, v);
+		if (r < 0)
+=======
+	if (argc == 1) {
+		if (sscanf(argv[0], "%d%c", &num, &dummy) != 1 ||
+			num < DM_VERITY_MODE_EIO ||
+			num > DM_VERITY_MODE_RESTART) {
+			ti->error = "Invalid mode";
+			r = -EINVAL;
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
+			goto bad;
+	}
+	else if (argc) {
 		as.argc = argc;
 		as.argv = argv;
 

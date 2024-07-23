@@ -1312,6 +1312,11 @@ static int translate_compat_table(struct xt_table_info **pinfo,
 	if (!newinfo)
 		goto out_unlock;
 
+<<<<<<< HEAD
+=======
+	memset(newinfo->entries, 0, size);
+
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 	newinfo->number = compatr->num_entries;
 	for (i = 0; i < NF_ARP_NUMHOOKS; i++) {
 		newinfo->hook_entry[i] = compatr->hook_entry[i];

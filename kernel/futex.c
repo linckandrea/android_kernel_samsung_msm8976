@@ -242,7 +242,11 @@ get_futex_key(u32 __user *uaddr, int fshared, union futex_key *key, int rw)
 {
 	unsigned long address = (unsigned long)uaddr;
 	struct mm_struct *mm = current->mm;
+<<<<<<< HEAD
 	struct page *page, *tail;
+=======
+	struct page *page, *page_head;
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 	struct address_space *mapping;
 	int err, ro = 0;
 
@@ -286,6 +290,45 @@ again:
 	else
 		err = 0;
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_TRANSPARENT_HUGEPAGE
+	page_head = page;
+	if (unlikely(PageTail(page))) {
+		put_page(page);
+		/* serialize against __split_huge_page_splitting() */
+		local_irq_disable();
+		if (likely(__get_user_pages_fast(address, 1, !ro, &page) == 1)) {
+			page_head = compound_head(page);
+			/*
+			 * page_head is valid pointer but we must pin
+			 * it before taking the PG_lock and/or
+			 * PG_compound_lock. The moment we re-enable
+			 * irqs __split_huge_page_splitting() can
+			 * return and the head page can be freed from
+			 * under us. We can't take the PG_lock and/or
+			 * PG_compound_lock on a page that could be
+			 * freed from under us.
+			 */
+			if (page != page_head) {
+				get_page(page_head);
+				put_page(page);
+			}
+			local_irq_enable();
+		} else {
+			local_irq_enable();
+			goto again;
+		}
+	}
+#else
+	page_head = compound_head(page);
+	if (page != page_head) {
+		get_page(page_head);
+		put_page(page);
+	}
+#endif
+
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 	/*
 	 * The treatment of mapping from this point on is critical. The page
 	 * lock protects many things but in this context the page lock
@@ -296,6 +339,7 @@ again:
 	 * considered here and page lock forces unnecessarily serialization
 	 * From this point on, mapping will be re-verified if necessary and
 	 * page lock will be acquired only if it is unavoidable
+<<<<<<< HEAD
 	 *
 	 * Mapping checks require the head page for any compound page so the
 	 * head page and mapping is looked up now. For anonymous pages, it
@@ -307,6 +351,11 @@ again:
 	tail = page;
 	page = compound_head(page);
 	mapping = ACCESS_ONCE(page->mapping);
+=======
+	 */
+
+	mapping = READ_ONCE(page_head->mapping);
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 
 	/*
 	 * If page->mapping is NULL, then it cannot be a PageAnon
@@ -333,8 +382,13 @@ again:
 		 */
 		lock_page(page);
 		shmem_swizzled = PageSwapCache(page) || page->mapping;
+<<<<<<< HEAD
 		unlock_page(page);
 		put_page(page);
+=======
+		unlock_page(page_head);
+		put_page(page_head);
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 
 		if (shmem_swizzled)
 			goto again;
@@ -384,17 +438,30 @@ again:
 		 */
 		rcu_read_lock();
 
+<<<<<<< HEAD
 		if (ACCESS_ONCE(page->mapping) != mapping) {
 			rcu_read_unlock();
 			put_page(page);
+=======
+		if (READ_ONCE(page_head->mapping) != mapping) {
+			rcu_read_unlock();
+			put_page(page_head);
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 
 			goto again;
 		}
 
+<<<<<<< HEAD
 		inode = ACCESS_ONCE(mapping->host);
 		if (!inode) {
 			rcu_read_unlock();
 			put_page(page);
+=======
+		inode = READ_ONCE(mapping->host);
+		if (!inode) {
+			rcu_read_unlock();
+			put_page(page_head);
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 
 			goto again;
 		}
@@ -404,16 +471,26 @@ again:
 		 * this reference was taken by ihold under the page lock
 		 * pinning the inode in place so i_lock was unnecessary. The
 		 * only way for this check to fail is if the inode was
+<<<<<<< HEAD
 		 * truncated in parallel which is almost certainly an
 		 * application bug. In such a case, just retry.
+=======
+		 * truncated in parallel so warn for now if this happens.
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 		 *
 		 * We are not calling into get_futex_key_refs() in file-backed
 		 * cases, therefore a successful atomic_inc return below will
 		 * guarantee that get_futex_key() will still imply smp_mb(); (B).
 		 */
+<<<<<<< HEAD
 		if (!atomic_inc_not_zero(&inode->i_count)) {
 			rcu_read_unlock();
 			put_page(page);
+=======
+		if (WARN_ON_ONCE(!atomic_inc_not_zero(&inode->i_count))) {
+			rcu_read_unlock();
+			put_page(page_head);
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 
 			goto again;
 		}
@@ -429,12 +506,20 @@ again:
 
 		key->both.offset |= FUT_OFF_INODE; /* inode-based key */
 		key->shared.inode = inode;
+<<<<<<< HEAD
 		key->shared.pgoff = basepage_index(tail);
+=======
+		key->shared.pgoff = basepage_index(page);
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 		rcu_read_unlock();
 	}
 
 out:
+<<<<<<< HEAD
 	put_page(page);
+=======
+	put_page(page_head);
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 	return err;
 }
 

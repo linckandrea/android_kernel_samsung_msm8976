@@ -141,7 +141,7 @@ static struct pll_clk a72ss_hf_pll = {
 		.vco_mode_masked = BVAL(21, 20, 1),
 	},
 	.base = &virt_bases[APCS_C1_PLL_BASE],
-	.max_rate = 1843200000,
+	.max_rate = 2016000000,
 	.min_rate = 940800000,
 	.c = {
 		.parent = &xo_a_clk.c,
@@ -671,9 +671,9 @@ static void print_opp_table(int a53_cpu, int a72_cpu)
 static void populate_opp_table(struct platform_device *pdev)
 {
 	struct platform_device *apc0_dev, *apc1_dev;
-	struct device_node *apc0_node, *apc1_node;
+	struct device_node *apc0_node = NULL, *apc1_node;
 	unsigned long apc0_fmax, apc1_fmax;
-	int cpu, a53_cpu, a72_cpu;
+	int cpu, a53_cpu = 0, a72_cpu = 0;
 
 	apc0_node = of_parse_phandle(pdev->dev.of_node, "vdd_a53-supply", 0);
 	apc1_node = of_parse_phandle(pdev->dev.of_node, "vdd_a72-supply", 0);

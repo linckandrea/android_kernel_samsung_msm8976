@@ -1167,6 +1167,7 @@ __rmqueue_fallback(struct zone *zone, int order, int start_migratetype)
 			if (is_migrate_cma(migratetype))
 				area->nr_free_cma--;
 
+<<<<<<< HEAD
 			if (!is_migrate_cma(migratetype)) {
 				try_to_steal_freepages(zone, page,
 						       start_migratetype,
@@ -1179,6 +1180,35 @@ __rmqueue_fallback(struct zone *zone, int order, int start_migratetype)
 				 * free pages.
 				 */
 				buddy_type = migratetype;
+=======
+			/*
+			 * If breaking a large block of pages, move all free
+			 * pages to the preferred allocation list. If falling
+			 * back for a reclaimable kernel allocation, be more
+			 * aggressive about taking ownership of free pages
+			 *
+			 * On the other hand, never change migration
+			 * type of MIGRATE_CMA pageblocks nor move CMA
+			 * pages on different free lists. We don't
+			 * want unmovable pages to be allocated from
+			 * MIGRATE_CMA areas.
+			 */
+			if (!is_migrate_cma(migratetype) &&
+			    (unlikely(current_order >= pageblock_order / 2) ||
+			     start_migratetype == MIGRATE_RECLAIMABLE ||
+			     page_group_by_mobility_disabled)) {
+				int pages;
+				pages = move_freepages_block(zone, page,
+								start_migratetype,0);
+
+				/* Claim the whole block if over half of it is free */
+				if (pages >= (1 << (pageblock_order-1)) ||
+						page_group_by_mobility_disabled)
+					set_pageblock_migratetype(page,
+								start_migratetype);
+
+				migratetype = start_migratetype;
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 			}
 
 			/* Remove the page from the freelists */
@@ -6546,7 +6576,9 @@ static const struct trace_print_flags pageflag_names[] = {
 #ifdef CONFIG_TRANSPARENT_HUGEPAGE
 	{1UL << PG_compound_lock,	"compound_lock"	},
 #endif
-	{1UL << PG_readahead,           "PG_readahead"  },
+#ifdef CONFIG_ZCACHE
+	{1UL << PG_was_active,		"was_active"	},
+#endif
 };
 
 static void dump_page_flags(unsigned long flags)

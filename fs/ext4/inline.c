@@ -854,7 +854,11 @@ int ext4_da_write_inline_data_begin(struct address_space *mapping,
 	handle_t *handle;
 	struct page *page;
 	struct ext4_iloc iloc;
+<<<<<<< HEAD
 	int retries = 0;
+=======
+	int retries;
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 
 	ret = ext4_get_inode_loc(inode, &iloc);
 	if (ret)

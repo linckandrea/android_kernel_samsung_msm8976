@@ -909,6 +909,7 @@ error:
 		}
 	}
 
+<<<<<<< HEAD
 	key = key_ref_to_ptr(key_ref);
 	if (test_bit(KEY_FLAG_USER_CONSTRUCT, &key->flags)) {
 		ret = wait_for_key_construction(key, true);
@@ -919,6 +920,8 @@ error:
 		}
 	}
 
+=======
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 	key_ref = __key_update(key_ref, &prep);
 	goto error_free_prep;
 }

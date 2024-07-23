@@ -741,6 +741,11 @@ static void mbim_notify_complete(struct usb_ep *ep, struct usb_request *req)
 	struct f_mbim			*mbim = req->context;
 	struct usb_cdc_notification	*event = req->buf;
 
+<<<<<<< HEAD
+=======
+	pr_debug("dev:%pK\n", mbim);
+
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 	spin_lock(&mbim->lock);
 	switch (req->status) {
 	case 0:
@@ -769,7 +774,11 @@ static void mbim_notify_complete(struct usb_ep *ep, struct usb_request *req)
 	mbim_do_notify(mbim);
 	spin_unlock(&mbim->lock);
 
+<<<<<<< HEAD
 	pr_debug("%s: Exit\n", __func__);
+=======
+	pr_debug("dev:%pK Exit\n", mbim);
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 }
 
 static void mbim_ep0out_complete(struct usb_ep *ep, struct usb_request *req)
@@ -780,6 +789,11 @@ static void mbim_ep0out_complete(struct usb_ep *ep, struct usb_request *req)
 	struct f_mbim		*mbim = func_to_mbim(f);
 	struct mbim_ntb_input_size *ntb = NULL;
 
+<<<<<<< HEAD
+=======
+	pr_debug("dev:%pK\n", mbim);
+
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 	req->context = NULL;
 	if (req->status || req->actual != req->length) {
 		pr_err("Bad control-OUT transfer\n");
@@ -816,7 +830,11 @@ static void mbim_ep0out_complete(struct usb_ep *ep, struct usb_request *req)
 invalid:
 	usb_ep_set_halt(ep);
 
+<<<<<<< HEAD
 	pr_err("%s: Failed\n", __func__);
+=======
+	pr_err("dev:%pK Failed\n", mbim);
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 
 	return;
 }

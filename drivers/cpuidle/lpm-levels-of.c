@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /* Copyright (c) 2014, 2017, The Linux Foundation. All rights reserved.
+=======
+/* Copyright (c) 2014-2016, The Linux Foundation. All rights reserved.
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -161,6 +165,7 @@ uint32_t *get_per_cpu_min_residency(int cpu)
 	return per_cpu(min_residency, cpu);
 }
 
+<<<<<<< HEAD
 #if defined(CONFIG_SW_SELF_DISCHARGING)
 extern int selfdischg_cpu_mask;
 #endif
@@ -308,6 +313,8 @@ ssize_t lpm_bundle_show(struct kobject *kobj, struct kobj_attribute *attr,
 static struct kobj_attribute lpm_bundle_attribute =
 		__ATTR(lpm_bundle, 0660, lpm_bundle_show, lpm_bundle_store);
 
+=======
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 ssize_t lpm_enable_show(struct kobject *kobj, struct kobj_attribute *attr,
 				char *buf)
 {
@@ -342,6 +349,7 @@ ssize_t lpm_enable_store(struct kobject *kobj, struct kobj_attribute *attr,
 	else
 		set_optimum_cluster_residency(avail->data, false);
 
+<<<<<<< HEAD
 #if defined(CONFIG_SW_SELF_DISCHARGING)
 	if ( attr->attr.name )
 		printk("[SELFDISCHG] LPM %s %s\n", buf, attr->attr.name);
@@ -349,6 +357,8 @@ ssize_t lpm_enable_store(struct kobject *kobj, struct kobj_attribute *attr,
 		printk("[SELFDISCHG] LPM %s null\n", buf);
 #endif
 
+=======
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 	return ret ? ret : len;
 }
 
@@ -884,7 +894,11 @@ static int calculate_residency(struct power_params *base_pwr,
 	residency /= (int32_t)(base_pwr->ss_power  - next_pwr->ss_power);
 
 	if (residency < 0) {
+<<<<<<< HEAD
 		pr_err("%s: Incorrect power attributes for LPM\n",
+=======
+		__WARN_printf("%s: Incorrect power attributes for LPM\n",
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 				__func__);
 		return 0;
 	}

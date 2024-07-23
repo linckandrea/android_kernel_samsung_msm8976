@@ -125,6 +125,7 @@ enum power_supply_property {
 	POWER_SUPPLY_PROP_VOLTAGE_NOW,
 	POWER_SUPPLY_PROP_VOLTAGE_AVG,
 	POWER_SUPPLY_PROP_VOLTAGE_OCV,
+	POWER_SUPPLY_PROP_INPUT_SUSPEND,
 	POWER_SUPPLY_PROP_INPUT_VOLTAGE_REGULATION,
 	POWER_SUPPLY_PROP_CURRENT_MAX,
 	POWER_SUPPLY_PROP_INPUT_CURRENT_MAX,
@@ -210,6 +211,13 @@ enum power_supply_property {
 	POWER_SUPPLY_PROP_SAFETY_TIMER_EXPIRED,
 	POWER_SUPPLY_PROP_RESTRICTED_CHARGING,
 	POWER_SUPPLY_PROP_ALLOW_HVDCP3,
+<<<<<<< HEAD
+=======
+	POWER_SUPPLY_PROP_MAX_PULSE_ALLOWED,
+	POWER_SUPPLY_PROP_ENABLE_AICL,
+	POWER_SUPPLY_PROP_SOC_REPORTING_READY,
+	POWER_SUPPLY_PROP_REAL_TYPE,
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 	/* Local extensions of type int64_t */
 	POWER_SUPPLY_PROP_CHARGE_COUNTER_EXT,
 	/* Properties of type `const char *' */
@@ -271,6 +279,10 @@ enum power_supply_type {
 	POWER_SUPPLY_TYPE_MAX,
 
 	POWER_SUPPLY_TYPE_HV_WIRELESS_ETX = 100,
+};
+
+enum power_supply_notifier_events {
+	PSY_EVENT_PROP_CHANGED,
 };
 
 union power_supply_propval {
@@ -352,6 +364,9 @@ struct power_supply_info {
 };
 
 #if defined(CONFIG_POWER_SUPPLY)
+extern struct atomic_notifier_head power_supply_notifier;
+extern int power_supply_reg_notifier(struct notifier_block *nb);
+extern void power_supply_unreg_notifier(struct notifier_block *nb);
 extern struct power_supply *power_supply_get_by_name(const char *name);
 extern void power_supply_changed(struct power_supply *psy);
 extern int power_supply_am_i_supplied(struct power_supply *psy);

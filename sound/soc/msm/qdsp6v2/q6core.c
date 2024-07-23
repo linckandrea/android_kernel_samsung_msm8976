@@ -326,7 +326,10 @@ int core_get_adsp_ver(void)
 	get_aver_cmd.hdr.token = 0;
 	get_aver_cmd.hdr.opcode = AVCS_GET_VERSIONS;
 
+<<<<<<< HEAD
 	q6core_lcl.cmd_resp_received_flag &= ~(FLAG_AVCS_GET_VERSIONS_RESULT);
+=======
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 	ret = apr_send_pkt(q6core_lcl.core_handle_q,
 				 (uint32_t *) &get_aver_cmd);
 	if (ret < 0) {
@@ -336,6 +339,10 @@ int core_get_adsp_ver(void)
 		goto fail_cmd;
 	}
 
+<<<<<<< HEAD
+=======
+	q6core_lcl.cmd_resp_received_flag &= ~(FLAG_AVCS_GET_VERSIONS_RESULT);
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 	mutex_unlock(&(q6core_lcl.cmd_lock));
 	ret = wait_event_timeout(q6core_lcl.cmd_req_wait,
 			(q6core_lcl.cmd_resp_received_flag ==
@@ -619,6 +626,7 @@ static int __init core_init(void)
 	q6core_init_cal_data();
 	return 0;
 }
+
 module_init(core_init);
 
 static void __exit core_exit(void)

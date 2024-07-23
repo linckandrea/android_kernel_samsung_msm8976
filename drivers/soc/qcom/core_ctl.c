@@ -1,4 +1,5 @@
 /*
+<<<<<<< HEAD
  * Copyright (c) 2014-2015, The Linux Foundation. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -25,6 +26,18 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
  * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+=======
+ * Copyright (c) 2014-2016, The Linux Foundation. All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 and
+ * only version 2 as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
@@ -39,6 +52,10 @@
 #include <linux/kthread.h>
 #include <linux/module.h>
 #include <linux/sched.h>
+<<<<<<< HEAD
+=======
+#include <linux/sched/rt.h>
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 #include <soc/qcom/core_ctl.h>
 #include <linux/mutex.h>
 
@@ -81,6 +98,10 @@ struct cpu_data {
 	struct task_struct *hotplug_thread;
 	struct kobject kobj;
 	struct list_head pending_lru;
+<<<<<<< HEAD
+=======
+	bool disabled;
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 };
 
 static DEFINE_PER_CPU(struct cpu_data, cpu_state);
@@ -200,6 +221,10 @@ static ssize_t store_busy_up_thres(struct cpu_data *state,
 static ssize_t show_busy_up_thres(struct cpu_data *state, char *buf)
 {
 	int i, count = 0;
+<<<<<<< HEAD
+=======
+
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 	for (i = 0; i < state->num_cpus; i++)
 		count += snprintf(buf + count, PAGE_SIZE - count, "%u ",
 				  state->busy_up_thres[i]);
@@ -231,6 +256,10 @@ static ssize_t store_busy_down_thres(struct cpu_data *state,
 static ssize_t show_busy_down_thres(struct cpu_data *state, char *buf)
 {
 	int i, count = 0;
+<<<<<<< HEAD
+=======
+
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 	for (i = 0; i < state->num_cpus; i++)
 		count += snprintf(buf + count, PAGE_SIZE - count, "%u ",
 				  state->busy_down_thres[i]);
@@ -307,19 +336,33 @@ static ssize_t show_global_state(struct cpu_data *state, char *buf)
 					"\tIs busy: %u\n", c->is_busy);
 		if (c->cpu != c->first_cpu)
 			continue;
+<<<<<<< HEAD
 		count += snprintf(buf + count, PAGE_SIZE- count,
+=======
+		count += snprintf(buf + count, PAGE_SIZE - count,
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 					"\tNr running: %u\n", c->nrrun);
 		count += snprintf(buf + count, PAGE_SIZE - count,
 					"\tAvail CPUs: %u\n", c->avail_cpus);
 		count += snprintf(buf + count, PAGE_SIZE - count,
 					"\tNeed CPUs: %u\n", c->need_cpus);
+<<<<<<< HEAD
+=======
+		count += snprintf(buf + count, PAGE_SIZE - count,
+					"\tStatus: %s\n",
+					c->disabled ? "disabled" : "enabled");
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 	}
 
 	return count;
 }
 
 static ssize_t store_not_preferred(struct cpu_data *state,
+<<<<<<< HEAD
 							const char *buf, size_t count)
+=======
+				   const char *buf, size_t count)
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 {
 	struct cpu_data *c;
 	unsigned int i, first_cpu;
@@ -359,6 +402,36 @@ static ssize_t show_not_preferred(struct cpu_data *state, char *buf)
 	return count;
 }
 
+<<<<<<< HEAD
+=======
+static ssize_t store_disable(struct cpu_data *state,
+				const char *buf, size_t count)
+{
+	unsigned int val;
+
+	if (sscanf(buf, "%u\n", &val) != 1)
+		return -EINVAL;
+
+	val = !!val;
+
+	if (state->disabled == val)
+		return count;
+
+	state->disabled = val;
+
+	if (!state->disabled)
+		wake_up_hotplug_thread(state);
+
+
+	return count;
+}
+
+static ssize_t show_disable(struct cpu_data *state, char *buf)
+{
+	return snprintf(buf, PAGE_SIZE, "%u\n", state->disabled);
+}
+
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 struct core_ctl_attr {
 	struct attribute attr;
 	ssize_t (*show)(struct cpu_data *, char *);
@@ -385,6 +458,10 @@ core_ctl_attr_ro(need_cpus);
 core_ctl_attr_ro(online_cpus);
 core_ctl_attr_ro(global_state);
 core_ctl_attr_rw(not_preferred);
+<<<<<<< HEAD
+=======
+core_ctl_attr_rw(disable);
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 
 static struct attribute *default_attrs[] = {
 	&min_cpus.attr,
@@ -399,6 +476,10 @@ static struct attribute *default_attrs[] = {
 	&online_cpus.attr,
 	&global_state.attr,
 	&not_preferred.attr,
+<<<<<<< HEAD
+=======
+	&disable.attr,
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 	NULL
 };
 
@@ -582,6 +663,10 @@ static bool eval_need(struct cpu_data *f)
 		ret = 1;
 	} else if (need_cpus < last_need) {
 		s64 elapsed = now - f->need_ts;
+<<<<<<< HEAD
+=======
+
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 		if (elapsed >= f->offline_delay_ms) {
 			ret = 1;
 		} else {
@@ -595,7 +680,12 @@ static bool eval_need(struct cpu_data *f)
 		f->need_cpus = need_cpus;
 	}
 
+<<<<<<< HEAD
 	trace_core_ctl_eval_need(f->cpu, last_need, need_cpus, ret && need_flag);
+=======
+	trace_core_ctl_eval_need(f->cpu, last_need, need_cpus,
+				 ret && need_flag);
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 	spin_unlock_irqrestore(&state_lock, flags);
 
 	return ret && need_flag;
@@ -642,6 +732,12 @@ static void wake_up_hotplug_thread(struct cpu_data *state)
 	struct cpu_data *pcpu;
 	bool no_wakeup = false;
 
+<<<<<<< HEAD
+=======
+	if (unlikely(state->disabled))
+		return;
+
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 	for_each_possible_cpu(cpu) {
 		pcpu = &per_cpu(cpu_state, cpu);
 		if (cpu != pcpu->first_cpu)
@@ -670,7 +766,11 @@ static void core_ctl_timer_func(unsigned long cpu)
 	struct cpu_data *state = &per_cpu(cpu_state, cpu);
 	unsigned long flags;
 
+<<<<<<< HEAD
 	if (eval_need(state)) {
+=======
+	if (eval_need(state) && !state->disabled) {
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 		spin_lock_irqsave(&state->pending_lock, flags);
 		state->pending = true;
 		spin_unlock_irqrestore(&state->pending_lock, flags);
@@ -719,7 +819,11 @@ static void __ref do_hotplug(struct cpu_data *f)
 				continue;
 
 			pr_debug("Trying to Offline CPU%u\n", c->cpu);
+<<<<<<< HEAD
 			if (cpu_down(c->cpu))
+=======
+			if (core_ctl_offline_core(c->cpu))
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 				pr_debug("Unable to Offline CPU%u\n", c->cpu);
 		}
 
@@ -738,7 +842,11 @@ static void __ref do_hotplug(struct cpu_data *f)
 				break;
 
 			pr_debug("Trying to Offline CPU%u\n", c->cpu);
+<<<<<<< HEAD
 			if (cpu_down(c->cpu))
+=======
+			if (core_ctl_offline_core(c->cpu))
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 				pr_debug("Unable to Offline CPU%u\n", c->cpu);
 		}
 	} else if (f->online_cpus < need) {
@@ -850,7 +958,12 @@ static int __ref cpu_callback(struct notifier_block *nfb,
 		 * so that there's no race with hotplug thread bringing up more
 		 * CPUs than necessary.
 		 */
+<<<<<<< HEAD
 		if (apply_limits(f, f->need_cpus) <= f->online_cpus) {
+=======
+		if (!f->disabled &&
+		    apply_limits(f, f->need_cpus) <= f->online_cpus) {
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 			pr_debug("Prevent CPU%d onlining\n", cpu);
 			ret = NOTIFY_BAD;
 		} else {
@@ -931,7 +1044,10 @@ static struct notifier_block __refdata cpu_notifier = {
 
 /* ============================ init code ============================== */
 
+<<<<<<< HEAD
 #define HOTPLUG_THREAD_NICE_VAL -7
+=======
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 static int group_init(struct cpumask *mask)
 {
 	struct device *dev;
@@ -939,6 +1055,10 @@ static int group_init(struct cpumask *mask)
 	struct cpu_data *f = &per_cpu(cpu_state, first_cpu);
 	struct cpu_data *state;
 	unsigned int cpu;
+<<<<<<< HEAD
+=======
+	struct sched_param param = { .sched_priority = MAX_RT_PRIO-1 };
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 
 	if (likely(f->inited))
 		return 0;
@@ -986,7 +1106,11 @@ static int group_init(struct cpumask *mask)
 
 	f->hotplug_thread = kthread_run(try_hotplug, (void *) f,
 					"core_ctl/%d", first_cpu);
+<<<<<<< HEAD
 	set_user_nice(f->hotplug_thread, HOTPLUG_THREAD_NICE_VAL);
+=======
+	sched_setscheduler_nocheck(f->hotplug_thread, SCHED_FIFO, &param);
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 
 	for_each_cpu(cpu, mask) {
 		state = &per_cpu(cpu_state, cpu);

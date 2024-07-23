@@ -2551,6 +2551,7 @@ int __netlink_dump_start(struct sock *ssk, struct sk_buff *skb,
 	} else
 		atomic_inc(&skb->users);
 
+<<<<<<< HEAD
 	sk = netlink_lookup(sock_net(ssk), ssk->sk_protocol, NETLINK_CB(skb).portid);
 	if (sk == NULL) {
 		ret = -ECONNREFUSED;
@@ -2572,6 +2573,8 @@ int __netlink_dump_start(struct sock *ssk, struct sk_buff *skb,
 
 	cb = &nlk->cb;
 	memset(cb, 0, sizeof(*cb));
+=======
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 	cb->start = control->start;
 	cb->dump = control->dump;
 	cb->done = control->done;

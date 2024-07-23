@@ -35,6 +35,7 @@ enum nat_table_type {
 #define NAT_TABLE_ENTRY_SIZE_BYTE 32
 #define NAT_INTEX_TABLE_ENTRY_SIZE_BYTE 4
 
+<<<<<<< HEAD
 /*
  * Max NAT table entries is limited 1000 entries.
  * Limit the memory size required by user to prevent kernel memory starvation
@@ -42,6 +43,8 @@ enum nat_table_type {
 #define IPA_TABLE_MAX_ENTRIES 1000
 #define MAX_ALLOC_NAT_SIZE (IPA_TABLE_MAX_ENTRIES * NAT_TABLE_ENTRY_SIZE_BYTE)
 
+=======
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 static int ipa_nat_vma_fault_remap(
 	 struct vm_area_struct *vma, struct vm_fault *vmf)
 {

@@ -1054,7 +1054,10 @@ void ion_client_destroy(struct ion_client *client)
 	struct rb_node *n;
 
 	pr_debug("%s: %d\n", __func__, __LINE__);
+<<<<<<< HEAD
 	mutex_lock(&debugfs_mutex);
+=======
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 	mutex_lock(&client->lock);
 	while ((n = rb_first(&client->handles))) {
 		struct ion_handle *handle = rb_entry(n, struct ion_handle,
@@ -1317,7 +1320,11 @@ static void ion_vm_open(struct vm_area_struct *vma)
 	mutex_lock(&buffer->lock);
 	list_add(&vma_list->list, &buffer->vmas);
 	mutex_unlock(&buffer->lock);
+<<<<<<< HEAD
 	 pr_debug("%s: adding %pK\n", __func__, vma);
+=======
+	pr_debug("%s: adding %pK\n", __func__, vma);
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 }
 
 static void ion_vm_close(struct vm_area_struct *vma)

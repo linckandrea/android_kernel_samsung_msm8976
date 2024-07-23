@@ -1,5 +1,9 @@
 /*
+<<<<<<< HEAD
  * Copyright (c) 2012-2019, The Linux Foundation. All rights reserved.
+=======
+ * Copyright (c) 2012-2015,2017-2019 The Linux Foundation. All rights reserved.
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -473,7 +477,11 @@ static int overlap_ptr_cmp(const void *a, const void *b)
 
 static int context_build_overlap(struct smq_invoke_ctx *ctx)
 {
+<<<<<<< HEAD
 	int err = 0, i;
+=======
+	int i, err = 0;
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 	remote_arg_t *lpra = ctx->lpra;
 	int inbufs = REMOTE_SCALARS_INBUFS(ctx->sc);
 	int outbufs = REMOTE_SCALARS_OUTBUFS(ctx->sc);
@@ -652,6 +660,10 @@ static void context_free(struct smq_invoke_ctx *ctx)
 		}
 	}
 	spin_unlock(&me->ctxlock);
+<<<<<<< HEAD
+=======
+
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 	kfree(ctx);
 }
 
@@ -759,7 +771,11 @@ static int get_args(uint32_t kernel, struct smq_invoke_ctx *ctx)
 	int outbufs = REMOTE_SCALARS_OUTBUFS(sc);
 	int bufs = inbufs + outbufs;
 	uintptr_t args;
+<<<<<<< HEAD
 	size_t rlen = 0, copylen = 0, metalen = 0,  lrpralen = 0;
+=======
+	size_t rlen = 0, copylen = 0, metalen = 0, lrpralen = 0;
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 	int i, inh, oix;
 	int err = 0;
 	int mflags = 0;
@@ -934,7 +950,11 @@ static int get_args(uint32_t kernel, struct smq_invoke_ctx *ctx)
 
 	}
 	inh = inbufs + outbufs;
+<<<<<<< HEAD
 	for (i = 0; rpra && lrpra && i < REMOTE_SCALARS_INHANDLES(sc); i++) {
+=======
+	for (i = 0; i < REMOTE_SCALARS_INHANDLES(sc); i++) {
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 		rpra[inh + i].buf.pv = lrpra[inh + i].buf.pv =
 			ptr_to_uint64(ctx->lpra[inh + i].buf.pv);
 		rpra[inh + i].buf.len = lrpra[inh + i].buf.len =
@@ -1113,6 +1133,10 @@ static void fastrpc_read_handler(int cid)
 					sizeof(rsp));
 		if (ret != sizeof(rsp))
 			break;
+<<<<<<< HEAD
+=======
+
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 		index = (uint32_t)((rsp.ctx & FASTRPC_CTXID_MASK) >> 4);
 		VERIFY(err, index < FASTRPC_CTX_MAX);
 		if (err)
@@ -1708,8 +1732,10 @@ static int fastrpc_file_free(struct fastrpc_file *fl)
 	kfree(fl);
 	return 0;
 }
+
 static int fastrpc_device_release(struct inode *inode, struct file *file)
 {
+<<<<<<< HEAD
 	struct fastrpc_file *fl = (struct fastrpc_file *)file->private_data;
 
 	if (fl) {
@@ -1717,6 +1743,10 @@ static int fastrpc_device_release(struct inode *inode, struct file *file)
 		fastrpc_file_free(fl);
 		file->private_data = NULL;
 	}
+=======
+	fastrpc_file_free((struct fastrpc_file *)file->private_data);
+	file->private_data = NULL;
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 	return 0;
 }
 

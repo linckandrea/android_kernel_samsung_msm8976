@@ -210,6 +210,17 @@ __ext4_set_acl(handle_t *handle, struct inode *inode, int type,
 	switch (type) {
 	case ACL_TYPE_ACCESS:
 		name_index = EXT4_XATTR_INDEX_POSIX_ACL_ACCESS;
+<<<<<<< HEAD
+=======
+		if (acl) {
+			error = posix_acl_update_mode(inode,
+				&inode->i_mode, &acl);
+			if (error)
+				return error;
+			inode->i_ctime = ext4_current_time(inode);
+			ext4_mark_inode_dirty(handle, inode);
+		}
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 		break;
 
 	case ACL_TYPE_DEFAULT:

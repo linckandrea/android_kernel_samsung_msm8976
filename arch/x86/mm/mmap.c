@@ -67,7 +67,7 @@ static int mmap_is_legacy(void)
 
 static unsigned long mmap_rnd(void)
 {
-	unsigned long rnd = 0;
+	unsigned long rnd;
 
 	if (current->flags & PF_RANDOMIZE) {
 		if (mmap_is_ia32())
@@ -82,7 +82,7 @@ static unsigned long mmap_rnd(void)
 	return rnd << PAGE_SHIFT;
 }
 
-static unsigned long mmap_base(void)
+static unsigned long mmap_base(unsigned long rnd)
 {
 	unsigned long gap = rlimit(RLIMIT_STACK);
 
@@ -91,7 +91,11 @@ static unsigned long mmap_base(void)
 	else if (gap > MAX_GAP)
 		gap = MAX_GAP;
 
+<<<<<<< HEAD
 	return PAGE_ALIGN(TASK_SIZE - gap - mmap_rnd());
+=======
+	return PAGE_ALIGN(TASK_SIZE - gap - rnd);
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 }
 
 /*
@@ -111,7 +115,11 @@ void arch_pick_mmap_layout(struct mm_struct *mm)
 		mm->mmap_base = mm->mmap_legacy_base;
 		mm->get_unmapped_area = arch_get_unmapped_area;
 	} else {
+<<<<<<< HEAD
 		mm->mmap_base = mmap_base();
+=======
+		mm->mmap_base = mmap_base(random_factor);
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 		mm->get_unmapped_area = arch_get_unmapped_area_topdown;
 	}
 }

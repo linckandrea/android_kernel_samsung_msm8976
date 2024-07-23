@@ -19,21 +19,31 @@
 #include "internal.h"
 
 static DEFINE_MUTEX(pmsg_lock);
+<<<<<<< HEAD
 static char *pmsg_buffer;
 #define PMSG_MAX_BOUNCE_BUFFER_SIZE (2*PAGE_SIZE)
+=======
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 
 static ssize_t write_pmsg(struct file *file, const char __user *buf,
 			  size_t count, loff_t *ppos)
 {
+<<<<<<< HEAD
 	size_t i, buffer_size;
 	char *buffer = pmsg_buffer;
+=======
+	u64 id;
+	int ret;
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 
 	if (!count)
 		return 0;
 
+	/* check outside lock, page in any data. write_buf_user also checks */
 	if (!access_ok(VERIFY_READ, buf, count))
 		return -EFAULT;
 
+<<<<<<< HEAD
 	buffer_size = count;
 	if (buffer_size > PMSG_MAX_BOUNCE_BUFFER_SIZE)
 		buffer_size = PMSG_MAX_BOUNCE_BUFFER_SIZE;
@@ -60,6 +70,13 @@ static ssize_t write_pmsg(struct file *file, const char __user *buf,
 
 	mutex_unlock(&pmsg_lock);
 	return count;
+=======
+	mutex_lock(&pmsg_lock);
+	ret = psinfo->write_buf_user(PSTORE_TYPE_PMSG, 0, &id, 0, buf, count,
+				     psinfo);
+	mutex_unlock(&pmsg_lock);
+	return ret ? ret : count;
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 }
 
 static const struct file_operations pmsg_fops = {

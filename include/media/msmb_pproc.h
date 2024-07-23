@@ -1,11 +1,10 @@
 #ifndef __MSMB_PPROC_H
 #define __MSMB_PPROC_H
+#define MSM_OUTPUT_BUF_CNT 8
 
-#ifdef MSM_CAMERA_BIONIC
-#include <sys/types.h>
-#endif
-#ifdef CONFIG_COMPAT
+#include <uapi/media/msmb_pproc.h>
 #include <linux/compat.h>
+<<<<<<< HEAD
 #endif
 #include <linux/videodev2.h>
 #include <linux/types.h>
@@ -256,6 +255,8 @@ struct msm_camera_v4l2_ioctl_t {
 	int32_t trans_code;
 	void __user *ioctl_ptr;
 };
+=======
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 
 #ifdef CONFIG_COMPAT
 struct msm_cpp_frame_info32_t {
@@ -401,4 +402,5 @@ struct msm_camera_v4l2_ioctl32_t {
 };
 #endif
 
-#endif /* __MSMB_PPROC_H */
+#endif
+

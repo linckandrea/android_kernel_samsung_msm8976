@@ -41,8 +41,11 @@
 
 #define FIFO_STATUS	0x0C
 #define LANE_STATUS	0xA8
+<<<<<<< HEAD
 static int fifo_error_dsi_dumpreg_done = 0;	//take selective dsi dump during fifo error -- QC case 02370966
 static int clk_error_dsi_dumpreg_done = 0;	//take selective dsi dump during clk error -- QC case 02378877
+=======
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 
 struct mdss_dsi_ctrl_pdata *ctrl_list[DSI_CTRL_MAX];
 
@@ -440,12 +443,15 @@ void mdss_dsi_host_init(struct mdss_panel_data *pdata)
 	MIPI_OUTP((ctrl_pdata->ctrl_base) + 0x11c,
 					0x23f); /* DSI_CLK_CTRL */
 
+<<<<<<< HEAD
 #if defined(CONFIG_FB_MSM_MDSS_SAMSUNG)
 	vdd = check_valid_ctrl(ctrl_pdata);
 	if (!IS_ERR_OR_NULL(vdd) && vdd->dtsi_data[ctrl_pdata->ndx].samsung_lp11_init)
 		MIPI_OUTP((ctrl_pdata->ctrl_base) + 0xac,0);/* LP11 */
 #endif
 
+=======
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 	/* Reset DSI_LANE_CTRL */
 	if (!ctrl_pdata->mmss_clamp)
 		MIPI_OUTP((ctrl_pdata->ctrl_base) + 0x00ac, 0x0);
@@ -1224,7 +1230,7 @@ static void mdss_dsi_mode_setup(struct mdss_panel_data *pdata)
 	struct mdss_panel_info *pinfo;
 	struct mipi_panel_info *mipi;
 	struct dsc_desc *dsc = NULL;
-	u32 clk_rate, data = 0;
+	u32 data = 0;
 	u32 hbp, hfp, vbp, vfp, hspw, vspw, width, height;
 	u32 ystride, bpp, dst_bpp;
 	u32 stream_ctrl, stream_total;
@@ -1238,9 +1244,6 @@ static void mdss_dsi_mode_setup(struct mdss_panel_data *pdata)
 	if (pinfo->compression_mode == COMPRESSION_DSC)
 		dsc = &pinfo->dsc;
 
-	clk_rate = pdata->panel_info.clk_rate;
-	clk_rate = min(clk_rate, pdata->panel_info.clk_max);
-
 	dst_bpp = pdata->panel_info.fbc.enabled ?
 		(pdata->panel_info.fbc.target_bpp) : (pinfo->bpp);
 
@@ -1253,6 +1256,8 @@ static void mdss_dsi_mode_setup(struct mdss_panel_data *pdata)
 	width = mult_frac(pdata->panel_info.xres, dst_bpp,
 			pdata->panel_info.bpp);
 	height = pdata->panel_info.yres;
+	pr_debug("%s: fbc=%d width=%d height=%d dst_bpp=%d\n", __func__,
+			pdata->panel_info.fbc.enabled, width, height, dst_bpp);
 
 	if (dsc)	/* compressed */
 		width = dsc->pclk_per_line;
@@ -1265,11 +1270,11 @@ static void mdss_dsi_mode_setup(struct mdss_panel_data *pdata)
 				pdata->panel_info.lcdc.border_bottom;
 	}
 
-	vsync_period = vspw + vbp + height + dummy_yres + vfp;
-	hsync_period = hspw + hbp + width + dummy_xres + hfp;
-
 	mipi = &pdata->panel_info.mipi;
 	if (pdata->panel_info.type == MIPI_VIDEO_PANEL) {
+		vsync_period = vspw + vbp + height + dummy_yres + vfp;
+		hsync_period = hspw + hbp + width + dummy_xres + hfp;
+
 		if (ctrl_pdata->shared_data->timing_db_mode)
 			MIPI_OUTP((ctrl_pdata->ctrl_base) + 0x1e8, 0x1);
 		MIPI_OUTP((ctrl_pdata->ctrl_base) + 0x24,
@@ -1612,9 +1617,11 @@ static int mdss_dsi_cmds2buf_tx(struct mdss_dsi_ctrl_pdata *ctrl,
 			if (IS_ERR_VALUE(len)) {
 				mdss_dsi_disable_irq(ctrl, DSI_CMD_TERM);
 				pr_err("%s: failed to call cmd_dma_tx for cmd = 0x%x\n",
-					__func__,  cmds->payload[0]);
+					__func__,  cm->payload[0]);
 				return 0;
 			}
+			pr_debug("%s: cmd_dma_tx for cmd = 0x%x, len = %d\n",
+					__func__,  cm->payload[0], len);
 
 
 			if (!wait || dchdr->wait > VSYNC_PERIOD)
@@ -2917,6 +2924,7 @@ void mdss_dsi_fifo_status(struct mdss_dsi_ctrl_pdata *ctrl)
 			/* Ignore FIFO EMPTY when overflow happens */
 			status = status & 0xeeeeffff;
 		}
+<<<<<<< HEAD
 		if (status & 0x88880000) {  /* DLNx_HS_FIFO_UNDERFLOW */
 #if defined(CONFIG_FB_MSM_MDSS_SAMSUNG)
 			MDSS_XLOG(DSI_EV_DLNx_FIFO_UNDERFLOW);
@@ -2927,6 +2935,11 @@ void mdss_dsi_fifo_status(struct mdss_dsi_ctrl_pdata *ctrl)
 #if defined(CONFIG_FB_MSM_MDSS_SAMSUNG)
 			MDSS_XLOG(DSI_EV_DSI_FIFO_EMPTY);
 #endif
+=======
+		if (status & 0x88880000)  /* DLNx_HS_FIFO_UNDERFLOW */
+			dsi_send_events(ctrl, DSI_EV_DLNx_FIFO_UNDERFLOW, 0);
+		if (status & 0x11110000) /* DLN_FIFO_EMPTY */
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 			dsi_send_events(ctrl, DSI_EV_DSI_FIFO_EMPTY, 0);
 		}
 	}
@@ -3015,6 +3028,11 @@ irqreturn_t mdss_dsi_isr(int irq, void *ptr)
 
 	pr_debug("%s: ndx=%d isr=%x\n", __func__, ctrl->ndx, isr);
 
+	if (isr & DSI_INTR_ERROR) {
+		MDSS_XLOG(ctrl->ndx, ctrl->mdp_busy, isr, 0x97);
+		mdss_dsi_error(ctrl);
+	}
+
 	if (isr & DSI_INTR_BTA_DONE) {
 		spin_lock(&ctrl->mdp_lock);
 		mdss_dsi_disable_irq_nosync(ctrl, DSI_BTA_TERM);
@@ -3036,11 +3054,6 @@ irqreturn_t mdss_dsi_isr(int irq, void *ptr)
 			mdss_dsi_set_reg(ctrl, 0x0c, 0x44440000, 0x44440000);
 		}
 		spin_unlock(&ctrl->mdp_lock);
-	}
-
-	if (isr & DSI_INTR_ERROR) {
-		MDSS_XLOG(ctrl->ndx, ctrl->mdp_busy, isr, 0x97);
-		mdss_dsi_error(ctrl);
 	}
 
 	if (isr & DSI_INTR_VIDEO_DONE) {

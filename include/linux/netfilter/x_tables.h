@@ -243,6 +243,10 @@ int xt_check_entry_offsets(const void *base, const char *elems,
                            unsigned int target_offset,
                            unsigned int next_offset);
 
+<<<<<<< HEAD
+=======
+extern int xt_check_proc_name(const char *name, unsigned int size);
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 extern int xt_check_match(struct xt_mtchk_param *,
 			  unsigned int size, u_int8_t proto, bool inv_proto);
 extern int xt_check_target(struct xt_tgchk_param *,
@@ -319,7 +323,7 @@ static inline unsigned int xt_write_recseq_begin(void)
 	 * since addend is most likely 1
 	 */
 	__this_cpu_add(xt_recseq.sequence, addend);
-	smp_wmb();
+	smp_mb();
 
 	return addend;
 }

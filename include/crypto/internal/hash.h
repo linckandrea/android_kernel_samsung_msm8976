@@ -78,8 +78,11 @@ static inline bool crypto_shash_alg_has_setkey(struct shash_alg *alg)
 	return alg->setkey != shash_no_setkey;
 }
 
+<<<<<<< HEAD
 bool crypto_hash_alg_has_setkey(struct hash_alg_common *halg);
 
+=======
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 int crypto_init_ahash_spawn(struct crypto_ahash_spawn *spawn,
 			    struct hash_alg_common *alg,
 			    struct crypto_instance *inst);

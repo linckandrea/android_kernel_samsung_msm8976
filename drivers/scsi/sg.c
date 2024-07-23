@@ -172,8 +172,13 @@ typedef struct sg_fd {		/* holds the state of a file descriptor */
 
 typedef struct sg_device { /* holds the state of each scsi generic device */
 	struct scsi_device *device;
+<<<<<<< HEAD
 	wait_queue_head_t open_wait;    /* queue open() when O_EXCL present */
 	struct mutex open_rel_lock;     /* held when in open() or release() */
+=======
+	struct mutex open_rel_lock;
+	wait_queue_head_t o_excl_wait;	/* queue open() when O_EXCL in use */
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 	int sg_tablesize;	/* adapter's max scatter-gather table size */
 	u32 index;		/* device index number */
 	struct list_head sfds;
@@ -591,9 +596,12 @@ sg_write(struct file *filp, const char __user *buf, size_t count, loff_t * ppos)
 
 	if (unlikely(segment_eq(get_fs(), KERNEL_DS)))
 		return -EINVAL;
+<<<<<<< HEAD
 
 	if (unlikely(segment_eq(get_fs(), KERNEL_DS)))
 		return -EINVAL;
+=======
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 
 	if ((!(sfp = (Sg_fd *) filp->private_data)) || (!(sdp = sfp->parentdp)))
 		return -ENXIO;
@@ -786,8 +794,16 @@ sg_common_write(Sg_fd * sfp, Sg_request * srp,
 		sg_finish_rem_req(srp);
 		return k;	/* probably out of space --> ENOMEM */
 	}
+<<<<<<< HEAD
 	if (atomic_read(&sdp->detaching)) {
 		if (srp->bio) {
+=======
+	if (sdp->detached) {
+		if (srp->bio) {
+			if (srp->rq->cmd != srp->rq->__cmd)
+				kfree(srp->rq->cmd);
+
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 			blk_end_request_all(srp->rq, -EIO);
 			srp->rq = NULL;
 		}
@@ -1702,6 +1718,7 @@ sg_start_req(Sg_request *srp, unsigned char *cmd)
 		if (!long_cmdp)
 			return -ENOMEM;
 	}
+<<<<<<< HEAD
 
 	rq = blk_get_request(q, rw, GFP_ATOMIC);
 	if (!rq) {
@@ -1710,6 +1727,14 @@ sg_start_req(Sg_request *srp, unsigned char *cmd)
 	}
 
 	blk_rq_set_block_pc(rq);
+=======
+
+	rq = blk_get_request(q, rw, GFP_ATOMIC);
+	if (!rq) {
+		kfree(long_cmdp);
+		return -ENOMEM;
+	}
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 
 	if (hp->cmd_len > BLK_MAX_CDB)
 		rq->cmd = long_cmdp;
@@ -2632,9 +2657,15 @@ static void sg_proc_debug_helper(struct seq_file *s, Sg_device * sdp)
 			seq_puts(s, cp);
 			blen = srp->data.bufflen;
 			usg = srp->data.k_use_sg;
+<<<<<<< HEAD
 			seq_puts(s, srp->done ?
 				 ((1 == srp->done) ?  "rcv:" : "fin:")
 				  : "act:");
+=======
+			seq_printf(s, srp->done ?
+				   ((1 == srp->done) ?  "rcv:" : "fin:")
+				   : "act:");
+>>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 			seq_printf(s, " id=%d blen=%d",
 				   srp->header.pack_id, blen);
 			if (srp->done)
