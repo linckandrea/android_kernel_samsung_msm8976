@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-/* Copyright (c) 2014-2016 The Linux Foundation. All rights reserved.
-=======
 /* Copyright (c) 2014-2016, 2018 The Linux Foundation. All rights reserved.
->>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -5051,11 +5047,6 @@ static void smbchg_handle_hvdcp3_disable(struct smbchg_chip *chip)
 	} else {
 		read_usb_type(chip, &usb_type_name, &usb_supply_type);
 		smbchg_change_usb_supply_type(chip, usb_supply_type);
-<<<<<<< HEAD
-		if (usb_supply_type == POWER_SUPPLY_TYPE_USB_DCP)
-			schedule_delayed_work(&chip->hvdcp_det_work,
-				msecs_to_jiffies(HVDCP_NOTIFY_MS));
-=======
 		if (usb_supply_type == POWER_SUPPLY_TYPE_USB_DCP) {
 			schedule_delayed_work(&chip->hvdcp_det_work,
 				msecs_to_jiffies(HVDCP_NOTIFY_MS));
@@ -5064,7 +5055,6 @@ static void smbchg_handle_hvdcp3_disable(struct smbchg_chip *chip)
 				pr_smb(PR_MISC, "init hvdcp_det_done\n");
 			}
 		}
->>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 	}
 }
 
@@ -5278,14 +5268,11 @@ out:
 	if (is_usb_present(chip) && !chip->allow_hvdcp3_detection)
 		smbchg_handle_hvdcp3_disable(chip);
 
-<<<<<<< HEAD
-=======
 	if (chip->parallel.use_parallel_aicl) {
 		pr_smb(PR_MISC, "complete hvdcp_det_done\n");
 		complete_all(&chip->hvdcp_det_done);
 	}
 
->>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 	return rc;
 }
 
@@ -5482,14 +5469,11 @@ static int smbchg_unprepare_for_pulsing_lite(struct smbchg_chip *chip)
 	if (is_usb_present(chip) && !chip->allow_hvdcp3_detection)
 		smbchg_handle_hvdcp3_disable(chip);
 
-<<<<<<< HEAD
-=======
 	if (chip->parallel.use_parallel_aicl) {
 		pr_smb(PR_MISC, "complete hvdcp_det_done\n");
 		complete_all(&chip->hvdcp_det_done);
 	}
 
->>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 	return rc;
 }
 
@@ -5764,10 +5748,7 @@ static enum power_supply_property smbchg_battery_properties[] = {
 	POWER_SUPPLY_PROP_RERUN_AICL,
 	POWER_SUPPLY_PROP_RESTRICTED_CHARGING,
 	POWER_SUPPLY_PROP_ALLOW_HVDCP3,
-<<<<<<< HEAD
-=======
 	POWER_SUPPLY_PROP_MAX_PULSE_ALLOWED,
->>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 };
 
 static int smbchg_battery_set_property(struct power_supply *psy,
@@ -5957,12 +5938,9 @@ static int smbchg_battery_get_property(struct power_supply *psy,
 	case POWER_SUPPLY_PROP_ALLOW_HVDCP3:
 		val->intval = chip->allow_hvdcp3_detection;
 		break;
-<<<<<<< HEAD
-=======
 	case POWER_SUPPLY_PROP_MAX_PULSE_ALLOWED:
 		val->intval = chip->max_pulse_allowed;
 		break;
->>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 	default:
 		return -EINVAL;
 	}
