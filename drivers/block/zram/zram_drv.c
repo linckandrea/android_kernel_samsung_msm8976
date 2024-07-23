@@ -113,21 +113,6 @@ static int zram_show_mem_notifier(struct notifier_block *nb,
 	return 0;
 }
 
-<<<<<<< HEAD
-=======
-static inline bool zram_meta_get(struct zram *zram)
-{
-       if (atomic_inc_not_zero(&zram->refcount))
-               return true;
-       return false;
-}
-
-static inline void zram_meta_put(struct zram *zram)
-{
-       atomic_dec(&zram->refcount);
-}
-
->>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 static struct notifier_block zram_show_mem_notifier_block = {
 	.notifier_call = zram_show_mem_notifier
 };
@@ -163,11 +148,7 @@ static ssize_t disksize_show(struct device *dev,
 {
 	struct zram *zram = dev_to_zram(dev);
 
-<<<<<<< HEAD
-	return scnprintf(buf, PAGE_SIZE, "%llu\n", zram->disksize);
-=======
 	return sprintf(buf, "%llu\n", zram->disksize);
->>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 }
 
 static ssize_t initstate_show(struct device *dev,
@@ -180,11 +161,7 @@ static ssize_t initstate_show(struct device *dev,
 	val = init_done(zram);
 	up_read(&zram->init_lock);
 
-<<<<<<< HEAD
-	return scnprintf(buf, PAGE_SIZE, "%u\n", val);
-=======
 	return sprintf(buf, "%u\n", val);
->>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 }
 
 static ssize_t orig_data_size_show(struct device *dev,
@@ -224,11 +201,7 @@ static ssize_t max_comp_streams_show(struct device *dev,
 	val = zram->max_comp_streams;
 	up_read(&zram->init_lock);
 
-<<<<<<< HEAD
-	return scnprintf(buf, PAGE_SIZE, "%d\n", val);
-=======
 	return sprintf(buf, "%d\n", val);
->>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 }
 
 static ssize_t mem_limit_show(struct device *dev,
@@ -421,20 +394,6 @@ static inline int valid_io_request(struct zram *zram,
 static void zram_meta_free(struct zram_meta *meta, u64 disksize)
 {
 	size_t num_pages = disksize >> PAGE_SHIFT;
-<<<<<<< HEAD
-	size_t index;
-
-	/* Free all pages that are still in this zram device */
-	for (index = 0; index < num_pages; index++) {
-		unsigned long handle = meta->table[index].handle;
-
-		if (!handle)
-			continue;
-
-		zs_free(meta->mem_pool, handle);
-	}
-
-=======
         size_t index;
 
         /* Free all pages that are still in this zram device */
@@ -446,7 +405,6 @@ static void zram_meta_free(struct zram_meta *meta, u64 disksize)
 
                 zs_free(meta->mem_pool, handle);
        }
->>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 	zs_destroy_pool(meta->mem_pool);
 	vfree(meta->table);
 	kfree(meta);
@@ -457,10 +415,6 @@ static struct zram_meta *zram_meta_alloc(int device_id, u64 disksize)
 	size_t num_pages;
 	char pool_name[8];
 	struct zram_meta *meta = kmalloc(sizeof(*meta), GFP_KERNEL);
-<<<<<<< HEAD
-
-=======
->>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 	if (!meta)
 		return NULL;
 
@@ -472,13 +426,8 @@ static struct zram_meta *zram_meta_alloc(int device_id, u64 disksize)
 	}
 
 	snprintf(pool_name, sizeof(pool_name), "zram%d", device_id);
-<<<<<<< HEAD
-	meta->mem_pool = zs_create_pool(pool_name, GFP_NOIO | __GFP_HIGHMEM |
-					__GFP_NOWARN, NULL);
-=======
         meta->mem_pool = zs_create_pool(pool_name, GFP_NOIO | __GFP_HIGHMEM |
 					__GFP_NOWARN);
->>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 	if (!meta->mem_pool) {
 		pr_err("Error creating memory pool\n");
 		goto out_error;
@@ -492,21 +441,6 @@ out_error:
 	return NULL;
 }
 
-<<<<<<< HEAD
-static inline bool zram_meta_get(struct zram *zram)
-{
-	if (atomic_inc_not_zero(&zram->refcount))
-		return true;
-	return false;
-}
-
-static inline void zram_meta_put(struct zram *zram)
-{
-	atomic_dec(&zram->refcount);
-}
-
-=======
->>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 static void update_position(u32 *index, int *offset, struct bio_vec *bvec)
 {
 	if (*offset + bvec->bv_len >= PAGE_SIZE)
@@ -815,10 +749,6 @@ out:
 	return ret;
 }
 
-<<<<<<< HEAD
-=======
-
->>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 static int zram_bvec_rw(struct zram *zram, struct bio_vec *bvec, u32 index,
 			int offset, int rw)
 {
@@ -884,14 +814,8 @@ static void zram_bio_discard(struct zram *zram, u32 index,
 static void zram_reset_device(struct zram *zram)
 {
 	struct zram_meta *meta;
-<<<<<<< HEAD
-	struct zcomp *comp;
-	u64 disksize;
-=======
         struct zcomp *comp;
         u64 disksize;
->>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
-
 	down_write(&zram->init_lock);
 
 	zram->limit_pages = 0;
@@ -900,36 +824,6 @@ static void zram_reset_device(struct zram *zram)
 		up_write(&zram->init_lock);
 		return;
 	}
-<<<<<<< HEAD
-
-	meta = zram->meta;
-	comp = zram->comp;
-	disksize = zram->disksize;
-	/*
-	 * Refcount will go down to 0 eventually and r/w handler
-	 * cannot handle further I/O so it will bail out by
-	 * check zram_meta_get.
-	 */
-	zram_meta_put(zram);
-	/*
-	 * We want to free zram_meta in process context to avoid
-	 * deadlock between reclaim path and any other locks.
-	 */
-	wait_event(zram->io_done, atomic_read(&zram->refcount) == 0);
-
-	/* Reset stats */
-	memset(&zram->stats, 0, sizeof(zram->stats));
-	zram->disksize = 0;
-	zram->max_comp_streams = 1;
-
-	set_capacity(zram->disk, 0);
-	part_stat_set_all(&zram->disk->part0, 0);
-
-	up_write(&zram->init_lock);
-	/* I/O operation under all of CPU are done so let's free */
-	zram_meta_free(meta, disksize);
-	zcomp_destroy(comp);
-=======
 	meta = zram->meta;
         comp = zram->comp;
         disksize = zram->disksize;
@@ -954,7 +848,6 @@ static void zram_reset_device(struct zram *zram)
 	/* I/O operation under all of CPU are done so let's free */
         zram_meta_free(meta, disksize);
         zcomp_destroy(comp);
->>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 }
 
 static ssize_t disksize_store(struct device *dev,
@@ -990,19 +883,11 @@ static ssize_t disksize_store(struct device *dev,
 		goto out_destroy_comp;
 	}
 
-<<<<<<< HEAD
-	init_waitqueue_head(&zram->io_done);
-	atomic_set(&zram->refcount, 1);
-	zram->meta = meta;
-	zram->comp = comp;
-	zram->disksize = disksize;
-=======
 	zram->meta = meta;
 	zram->comp = comp;
 	zram->disksize = disksize;
 	init_waitqueue_head(&zram->io_done);
         atomic_set(&zram->refcount, 1);
->>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 	set_capacity(zram->disk, zram->disksize >> SECTOR_SHIFT);
 	up_write(&zram->init_lock);
 
@@ -1127,13 +1012,8 @@ out:
 static void zram_make_request(struct request_queue *queue, struct bio *bio)
 {
 	struct zram *zram = queue->queuedata;
-<<<<<<< HEAD
-
-	if (unlikely(!zram_meta_get(zram)))
-=======
 	
 	if (unlikely(!zram_meta_get(zram)))	
->>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 		goto error;
 
 	if (!valid_io_request(zram, bio->bi_sector,
@@ -1146,19 +1026,11 @@ static void zram_make_request(struct request_queue *queue, struct bio *bio)
 	zram_meta_put(zram);
 	return;
 put_zram:
-<<<<<<< HEAD
-	zram_meta_put(zram);
-=======
         zram_meta_put(zram);
->>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 error:
 	bio_io_error(bio);
 }
 
-<<<<<<< HEAD
-=======
-
->>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 static void zram_slot_free_notify(struct block_device *bdev,
 				unsigned long index)
 {
@@ -1172,10 +1044,6 @@ static void zram_slot_free_notify(struct block_device *bdev,
 	zram_free_page(zram, index);
 	bit_spin_unlock(ZRAM_ACCESS, &meta->table[index].value);
 	atomic64_inc(&zram->stats.notify_free);
-<<<<<<< HEAD
-=======
-
->>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 }
 
 static const struct block_device_operations zram_devops = {
@@ -1287,21 +1155,12 @@ static struct attribute_group zram_disk_attr_group = {
 
 static int create_device(struct zram *zram, int device_id)
 {
-<<<<<<< HEAD
-	struct request_queue *queue;
-	int ret = -ENOMEM;
-
-	init_rwsem(&zram->init_lock);
-
-	queue = blk_alloc_queue(GFP_KERNEL);
-=======
 	int ret = -ENOMEM;
 	struct request_queue *queue;
 	init_rwsem(&zram->init_lock);
 
 	queue = blk_alloc_queue(GFP_KERNEL);
 
->>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 	if (!queue) {
 		pr_err("Error allocating disk queue for device %d\n",
 			device_id);
@@ -1323,11 +1182,7 @@ static int create_device(struct zram *zram, int device_id)
 	zram->disk->first_minor = device_id;
 	zram->disk->fops = &zram_devops;
 	zram->disk->queue = queue;
-<<<<<<< HEAD
-	zram->disk->queue->queuedata = zram;
-=======
         zram->disk->queue->queuedata = zram;
->>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 	zram->disk->private_data = zram;
 	snprintf(zram->disk->disk_name, 16, "zram%d", device_id);
 
@@ -1400,16 +1255,10 @@ static void destroy_devices(unsigned int nr)
 
 		zram_reset_device(zram);
 
-<<<<<<< HEAD
-		blk_cleanup_queue(zram->disk->queue);
-		del_gendisk(zram->disk);
-		put_disk(zram->disk);
-=======
 	        blk_cleanup_queue(zram->disk->queue);
 		del_gendisk(zram->disk);
 		put_disk(zram->disk);
 
->>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 	}
 
 	kfree(zram_devices);
