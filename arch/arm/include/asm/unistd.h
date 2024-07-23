@@ -15,21 +15,7 @@
 
 #include <uapi/asm/unistd.h>
 
-<<<<<<< HEAD
-/*
- * This may need to be greater than __NR_last_syscall+1 in order to
- * account for the padding in the syscall table
- */
 #define __NR_syscalls  (388)
-
-/*
- * *NOTE*: This is a ghost syscall private to the kernel.  Only the
- * __kuser_cmpxchg code in entry-armv.S should be aware of its
- * existence.  Don't ever use this from user code.
- */
-=======
-#define __NR_syscalls  (388)
->>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 #define __ARM_NR_cmpxchg		(__ARM_NR_BASE+0x00fff0)
 
 #define __ARCH_WANT_STAT64

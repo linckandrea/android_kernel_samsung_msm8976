@@ -103,11 +103,7 @@ __get_user_bad:
 	mov	r0, #-EFAULT
 	mov	pc, lr
 ENDPROC(__get_user_bad)
-<<<<<<< HEAD
-_ASM_NOKPROBE(__get_user_bad)
-=======
 ENDPROC(__get_user_bad8)
->>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 
 .pushsection __ex_table, "a"
 	.long	1b, __get_user_bad
