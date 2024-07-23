@@ -90,7 +90,4 @@ obj-$(CONFIG_GPIO_WM8350)	+= gpio-wm8350.o
 obj-$(CONFIG_GPIO_WM8994)	+= gpio-wm8994.o
 obj-$(CONFIG_GPIO_XILINX)	+= gpio-xilinx.o
 obj-$(CONFIG_MSM_SMP2P)		+= gpio-msm-smp2p.o
-<<<<<<< HEAD
 obj-$(CONFIG_GPIO_PCAL6416A)    += gpio-pcal6416a.o
-=======
->>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
