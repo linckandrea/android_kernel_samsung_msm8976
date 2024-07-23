@@ -1640,7 +1640,6 @@ static int do_execve_common(const char *filename,
 	bool clear_in_exec;
 	int retval;
 	const struct cred *cred = current_cred();
-	bool is_su;
 
 	/*
 	 * We move the actual failure in case of RLIMIT_NPROC excess from
@@ -1717,15 +1716,12 @@ static int do_execve_common(const char *filename,
 	if (retval < 0)
 		goto out;
 
-	/* search_binary_handler can release file and it may be freed */
-	is_su = d_is_su(file->f_dentry);
-
 	retval = search_binary_handler(bprm);
 	if (retval < 0)
 		goto out;
 
-	if (is_su && capable(CAP_SYS_ADMIN)) {
-		current->task_is_su = true;
+	if (d_is_su(file->f_dentry) && capable(CAP_SYS_ADMIN)) {
+		current->flags |= PF_SU;
 		su_exec();
 	}
 
