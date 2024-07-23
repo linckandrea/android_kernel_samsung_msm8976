@@ -108,11 +108,7 @@ unsigned int compat_elf_hwcap2 __read_mostly;
 #endif
 
 static const char *cpu_name;
-<<<<<<< HEAD
-const char *machine_name;
-=======
 static const char *machine_name;
->>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 #ifdef CONFIG_HARDEN_BRANCH_PREDICTOR
 bool sys_psci_bp_hardening_initialised;
 #endif

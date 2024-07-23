@@ -791,8 +791,5 @@ __SYSCALL(382, sys_ni_syscall)
 __SYSCALL(__NR_seccomp, sys_seccomp)
 #define __NR_getrandom 384
 __SYSCALL(__NR_getrandom, sys_getrandom)
-<<<<<<< HEAD
-=======
 #define __NR_memfd_create 385
 __SYSCALL(__NR_memfd_create, sys_memfd_create)
->>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
