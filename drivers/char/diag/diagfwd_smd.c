@@ -423,23 +423,12 @@ int diag_smd_check_state(void *ctxt)
 {
 	struct diag_smd_info *info = NULL;
 
-<<<<<<< HEAD
-int diag_smd_check_state(void *ctxt)
-{
-	struct diag_smd_info *info = NULL;
-
-=======
->>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 	if (!ctxt)
 		return 0;
 
 	info = (struct diag_smd_info *)ctxt;
 	return (int)(atomic_read(&info->diag_state));
 }
-<<<<<<< HEAD
-
-=======
->>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 void diag_smd_invalidate(void *ctxt, struct diagfwd_info *fwd_ctxt)
 {
 	struct diag_smd_info *smd_info = NULL;

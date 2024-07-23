@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-/* Copyright (c) 2015-2016, The Linux Foundation. All rights reserved.
-=======
 /* Copyright (c) 2015-2017, The Linux Foundation. All rights reserved.
->>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -671,25 +667,10 @@ void diagfwd_close_transport(uint8_t transport, uint8_t peripheral)
 
 	}
 
-<<<<<<< HEAD
-	DIAG_LOG(DIAG_DEBUG_PERIPHERALS,"diag:%s:%d:p:%d:diagfwd_channel_mutex to be obtained\n",
-		__func__, __LINE__, peripheral);
-	mutex_lock(&driver->diagfwd_channel_mutex);
-	DIAG_LOG(DIAG_DEBUG_PERIPHERALS,"diag:%s:%d:p:%d:diagfwd_channel_mutex obtained\n",
-		__func__, __LINE__, peripheral);
-
-	fwd_info = &early_init_info[transport][peripheral];
-	if (fwd_info->p_ops && fwd_info->p_ops->close)
-		fwd_info->p_ops->close(fwd_info->ctxt);
-	DIAG_LOG(DIAG_DEBUG_PERIPHERALS,"closed transport for transport:%d peripheral:%d\n",
-		transport_open, peripheral);
-
-=======
 	mutex_lock(&driver->diagfwd_channel_mutex[peripheral]);
 	fwd_info = &early_init_info[transport][peripheral];
 	if (fwd_info->p_ops && fwd_info->p_ops->close)
 		fwd_info->p_ops->close(fwd_info->ctxt);
->>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 	fwd_info = &early_init_info[transport_open][peripheral];
 	DIAG_LOG(DIAG_DEBUG_PERIPHERALS,"fwd_info for transport_open:%d peripheral:%d is inited\n",
 		transport_open, peripheral);
@@ -705,31 +686,6 @@ void diagfwd_close_transport(uint8_t transport, uint8_t peripheral)
 	dest_info->inited = fwd_info->inited;
 	dest_info->buf_1 = fwd_info->buf_1;
 	dest_info->buf_2 = fwd_info->buf_2;
-<<<<<<< HEAD
-
-	DIAG_LOG(DIAG_DEBUG_PERIPHERALS,"fwd_info: p:%d, t:%d\n",
-		fwd_info->peripheral, fwd_info->type);
-
-	if(fwd_info->buf_1 && fwd_info->type == TYPE_CNTL)
-		DIAG_LOG(DIAG_DEBUG_PERIPHERALS,"diag:%s:%d: p= %d, t= %d,buf_1->in_busy= %d\n",
-		__func__, __LINE__, fwd_info->peripheral, fwd_info->type, atomic_read(&(fwd_info->buf_1->in_busy)));
-
-	dest_info->transport = fwd_info->transport;
-	invalidate_fn(dest_info->ctxt, dest_info);
-	if (!check_channel_state(dest_info->ctxt))
-	diagfwd_late_open(dest_info);
-
-	DIAG_LOG(DIAG_DEBUG_PERIPHERALS,"calling invalidate for dest_info:%p and dest_info context:%p\n",
-		dest_info,dest_info->ctxt);
-
-	diagfwd_cntl_open(dest_info);
-	init_fn(peripheral);
-
-	mutex_unlock(&driver->diagfwd_channel_mutex);
-	DIAG_LOG(DIAG_DEBUG_PERIPHERALS,"diag:%s:%d:p:%d:diagfwd_channel_mutex released\n",
-			__func__, __LINE__, peripheral);
-
-=======
 	dest_info->transport = fwd_info->transport;
 	invalidate_fn(dest_info->ctxt, dest_info);
 	if (!check_channel_state(dest_info->ctxt))
@@ -737,7 +693,6 @@ void diagfwd_close_transport(uint8_t transport, uint8_t peripheral)
 	diagfwd_cntl_open(dest_info);
 	init_fn(peripheral);
 	mutex_unlock(&driver->diagfwd_channel_mutex[peripheral]);
->>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 	diagfwd_queue_read(&peripheral_info[TYPE_DATA][peripheral]);
 	diagfwd_queue_read(&peripheral_info[TYPE_CMD][peripheral]);
 }

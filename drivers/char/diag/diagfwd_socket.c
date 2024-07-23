@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-/* Copyright (c) 2015-2016, The Linux Foundation. All rights reserved.
-=======
 /* Copyright (c) 2015-2017, The Linux Foundation. All rights reserved.
->>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -626,11 +622,6 @@ static void socket_read_work_fn(struct work_struct *work)
 
 	if (!atomic_read(&info->opened) && info->port_type == PORT_TYPE_SERVER)
 		diagfwd_buffers_init(info->fwd_ctxt);
-<<<<<<< HEAD
-	DIAG_LOG(DIAG_DEBUG_PERIPHERALS,"calling fwd channel read for svc id %d ins %d\n",info->svc_id,info->ins_id);
-=======
-
->>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 	diagfwd_channel_read(info->fwd_ctxt);
 }
 
@@ -644,23 +635,10 @@ static void diag_socket_queue_read(void *ctxt)
 		}
 
 	info = (struct diag_socket_info *)ctxt;
-<<<<<<< HEAD
-	if (info->peripheral != PERIPHERAL_MODEM) {
-		DIAG_LOG(DIAG_DEBUG_PERIPHERALS,"return for %s\n", info->name);	
-		return;
-	}
-
-	DIAG_LOG(DIAG_DEBUG_PERIPHERALS,"about to queue read for instance %d svc %d \n",info->ins_id,info->svc_id);	
-	if (info->hdl && info->wq) {
-		DIAG_LOG(DIAG_DEBUG_PERIPHERALS,"queued work function in socket queue read for instance %d svc %d \n",info->ins_id,info->svc_id);
- 		queue_work(info->wq, &(info->read_work));
-		}
-=======
 	if (info->peripheral != PERIPHERAL_MODEM)
 		return;
 	if (info->hdl && info->wq)
 		queue_work(info->wq, &(info->read_work));
->>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 }
 
 void diag_socket_invalidate(void *ctxt, struct diagfwd_info *fwd_ctxt)
@@ -912,24 +890,9 @@ static int diag_socket_read(void *ctxt, unsigned char *buf, int buf_len)
 				      (info->data_ready > 0) || (!info->hdl) ||
 				      (atomic_read(&info->diag_state) == 0));
 	if (err) {
-<<<<<<< HEAD
-
-		DIAG_LOG(DIAG_DEBUG_PERIPHERALS,"diag:%s:%d:p:%d:diagfwd_channel_mutex to be obtained\n",
-				__func__, __LINE__, info->peripheral);
-		mutex_lock(&driver->diagfwd_channel_mutex);
-		DIAG_LOG(DIAG_DEBUG_PERIPHERALS,"diag:%s:%d:%s:diagfwd_channel_mutex obtained\n",
-		__func__, __LINE__, info->name);
-		
-		diagfwd_channel_read_done(info->fwd_ctxt, buf, 0);
-
-		mutex_unlock(&driver->diagfwd_channel_mutex);
-		DIAG_LOG(DIAG_DEBUG_PERIPHERALS,"diag:%s:%d:%s:diagfwd_channel_mutex obtained\n",
-		__func__, __LINE__, info->name);
-=======
 		mutex_lock(&driver->diagfwd_channel_mutex[info->peripheral]);
 		diagfwd_channel_read_done(info->fwd_ctxt, buf, 0);
 		mutex_unlock(&driver->diagfwd_channel_mutex[info->peripheral]);
->>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 		return -ERESTARTSYS;
 	}
 
@@ -941,25 +904,9 @@ static int diag_socket_read(void *ctxt, unsigned char *buf, int buf_len)
 		DIAG_LOG(DIAG_DEBUG_PERIPHERALS,
 			 "%s closing read thread. diag state is closed\n",
 			 info->name);
-<<<<<<< HEAD
-
-		DIAG_LOG(DIAG_DEBUG_PERIPHERALS,"diag:%s:%d:p:%d:diagfwd_channel_mutex to be obtained\n",
-				__func__, __LINE__, info->peripheral);
-		mutex_lock(&driver->diagfwd_channel_mutex);
-		DIAG_LOG(DIAG_DEBUG_PERIPHERALS,"diag:%s:%d:%s:diagfwd_channel_mutex obtained\n",
-		__func__, __LINE__, info->name);
-
-		diagfwd_channel_read_done(info->fwd_ctxt, buf, 0);
-
-		mutex_unlock(&driver->diagfwd_channel_mutex);
-		DIAG_LOG(DIAG_DEBUG_PERIPHERALS,"diag:%s:%d:%s:diagfwd_channel_mutex obtained\n",
-		__func__, __LINE__, info->name);
-
-=======
 		mutex_lock(&driver->diagfwd_channel_mutex[info->peripheral]);
 		diagfwd_channel_read_done(info->fwd_ctxt, buf, 0);
 		mutex_unlock(&driver->diagfwd_channel_mutex[info->peripheral]);
->>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 		return 0;
 	}
 
@@ -1029,33 +976,12 @@ static int diag_socket_read(void *ctxt, unsigned char *buf, int buf_len)
 	if (total_recd > 0) {
 		DIAG_LOG(DIAG_DEBUG_PERIPHERALS, "%s read total bytes: %d\n",
 			 info->name, total_recd);
-<<<<<<< HEAD
-
-		DIAG_LOG(DIAG_DEBUG_PERIPHERALS,"diag:%s:%d:p:%d:diagfwd_channel_mutex to be obtained\n",
-				__func__, __LINE__, info->peripheral);
-		mutex_lock(&driver->diagfwd_channel_mutex);
-		DIAG_LOG(DIAG_DEBUG_PERIPHERALS,"diag:%s:%d:%s:diagfwd_channel_mutex obtained\n",
-		__func__, __LINE__, info->name);
-
-		err = diagfwd_channel_read_done(info->fwd_ctxt,
-						buf, total_recd);
-
-		mutex_unlock(&driver->diagfwd_channel_mutex);
-		DIAG_LOG(DIAG_DEBUG_PERIPHERALS,"diag:%s:%d:%s:diagfwd_channel_mutex obtained\n",
-		__func__, __LINE__, info->name);
-
-		if (err) {
-			DIAG_LOG(DIAG_DEBUG_PERIPHERALS, "%s failed read done read total bytes: %d err%d\n", info->name, total_recd, err);
- 			goto fail;
-			}
-=======
 		mutex_lock(&driver->diagfwd_channel_mutex[info->peripheral]);
 		err = diagfwd_channel_read_done(info->fwd_ctxt,
 						buf, total_recd);
 		mutex_unlock(&driver->diagfwd_channel_mutex[info->peripheral]);
 		if (err)
 			goto fail;
->>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 	} else {
 		DIAG_LOG(DIAG_DEBUG_PERIPHERALS, "%s error in read, err: %d\n",
 			 info->name, total_recd);
@@ -1066,26 +992,9 @@ static int diag_socket_read(void *ctxt, unsigned char *buf, int buf_len)
 	return 0;
 
 fail:
-<<<<<<< HEAD
-	DIAG_LOG(DIAG_DEBUG_PERIPHERALS, "%s calling channel read done in fail case with len zero: %d\n", info->name, total_recd);
-
-	DIAG_LOG(DIAG_DEBUG_PERIPHERALS,"diag:%s:%d:p:%d:diagfwd_channel_mutex to be obtained\n",
-			__func__, __LINE__, info->peripheral);
-	mutex_lock(&driver->diagfwd_channel_mutex);
-	DIAG_LOG(DIAG_DEBUG_PERIPHERALS,"diag:%s:%d:%s:diagfwd_channel_mutex obtained\n",
-	__func__, __LINE__, info->name);
-
-	diagfwd_channel_read_done(info->fwd_ctxt, buf, 0);
-
-	mutex_unlock(&driver->diagfwd_channel_mutex);
-	DIAG_LOG(DIAG_DEBUG_PERIPHERALS,"diag:%s:%d:%s:diagfwd_channel_mutex obtained\n",
-	__func__, __LINE__, info->name);
-
-=======
 	mutex_lock(&driver->diagfwd_channel_mutex[info->peripheral]);
 	diagfwd_channel_read_done(info->fwd_ctxt, buf, 0);
 	mutex_unlock(&driver->diagfwd_channel_mutex[info->peripheral]);
->>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 	return -EIO;
 }
 

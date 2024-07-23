@@ -1493,19 +1493,6 @@ int diag_copy_to_user_msg_mask(char __user *buf, size_t count)
 
 	if (!buf || count == 0)
 		return -EINVAL;
-<<<<<<< HEAD
-
-	mutex_lock(&driver->diag_maskclear_mutex);
-	if (driver->mask_clear) {
-		DIAG_LOG(DIAG_DEBUG_USERSPACE,
-		"diag:%s: count = %zu\n", __func__, count);
-		mutex_unlock(&driver->diag_maskclear_mutex);
-		return -EIO;
-	}
-	mutex_unlock(&driver->diag_maskclear_mutex);
-
-=======
->>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 	mutex_lock(&driver->msg_mask_lock);
 	mutex_lock(&msg_mask.lock);
 	mask = (struct diag_msg_mask_t *)(msg_mask.ptr);

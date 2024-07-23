@@ -629,11 +629,7 @@ retry:
 		r->entropy_total = 0;
 		if (r == &nonblocking_pool) {
 			prandom_reseed_late();
-<<<<<<< HEAD
-			wake_up_all(&urandom_init_wait);
-=======
 			wake_up_interruptible(&urandom_init_wait);
->>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 			pr_notice("random: %s pool is initialized\n", r->name);
 		}
 	}

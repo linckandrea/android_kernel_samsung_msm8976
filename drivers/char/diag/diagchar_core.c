@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-/* Copyright (c) 2008-2018, 2019, The Linux Foundation. All rights reserved.
-=======
 /* Copyright (c) 2008-2017, 2019, The Linux Foundation. All rights reserved.
->>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -548,21 +544,9 @@ static int diag_remove_client_entry(struct file *file)
 }
 static int diagchar_close(struct inode *inode, struct file *file)
 {
-<<<<<<< HEAD
-	int ret;
-
-	DIAG_LOG(DIAG_DEBUG_USERSPACE, "diag: %s process exit with pid = %d\n",
-		current->comm, current->tgid);
-	ret = diag_remove_client_entry(file);
-	mutex_lock(&driver->diag_maskclear_mutex);
-	driver->mask_clear = 0;
-	mutex_unlock(&driver->diag_maskclear_mutex);
-	return ret;
-=======
 	DIAG_LOG(DIAG_DEBUG_USERSPACE, "diag: %s process exit with pid = %d\n",
 		current->comm, current->tgid);
 	return diag_remove_client_entry(file);
->>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 }
 
 void diag_record_stats(int type, int flag)
@@ -3147,12 +3131,8 @@ static int __init diagchar_init(void)
 	mutex_init(&driver->delayed_rsp_mutex);
 	mutex_init(&apps_data_mutex);
 	mutex_init(&driver->msg_mask_lock);
-<<<<<<< HEAD
-	mutex_init(&driver->diagfwd_channel_mutex);
-=======
 	for (i = 0; i < NUM_PERIPHERALS; i++)
 		mutex_init(&driver->diagfwd_channel_mutex[i]);
->>>>>>> 2e348833f33ea1902b3986d8b77836588bc665d7
 	mutex_init(&driver->hdlc_recovery_mutex);
 	init_waitqueue_head(&driver->wait_q);
 	INIT_WORK(&(driver->diag_drain_work), diag_drain_work_fn);
