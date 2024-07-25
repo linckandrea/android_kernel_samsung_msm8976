@@ -1,1 +1,4 @@
 Shared device tree for Samsung msm8976 devices
+
+TODO:
+sync audio_effects.xml & audio_platform_info_extcodec.xml from stock
