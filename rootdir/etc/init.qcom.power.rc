@@ -197,3 +197,9 @@ on property:dev.bootcomplete=1
     trigger enable-low-power
 
     setprop sys.io.scheduler "bfq"
+
+# Disable scheduler statistics to reduce overhead
+write /proc/sys/kernel/sched_schedstats 0
+
+# Disable unnecessary printk logging
+write /proc/sys/kernel/printk_devkmsg off
