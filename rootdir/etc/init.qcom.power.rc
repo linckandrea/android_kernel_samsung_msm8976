@@ -19,6 +19,11 @@ on boot
     # Enable sched boost
     write /proc/sys/kernel/sched_boost 1
 
+on post-fs-data
+    # Boot time fs tune
+    write /sys/block/mmcblk0/queue/read_ahead_kb 2048
+    write /sys/block/mmcblk0rpmb/queue/read_ahead_kb 2048
+
 on enable-low-power
     # HMP scheduler (big.Little cluster related) settings
     write /proc/sys/kernel/sched_upmigrate 95
@@ -197,6 +202,9 @@ on property:dev.bootcomplete=1
     trigger enable-low-power
 
     setprop sys.io.scheduler "bfq"
+
+    write /sys/block/mmcblk0/queue/read_ahead_kb 128
+    write /sys/block/mmcblk0rpmb/queue/read_ahead_kb 128
 
     # Disable scheduler statistics to reduce overhead
     write /proc/sys/kernel/sched_schedstats 0
