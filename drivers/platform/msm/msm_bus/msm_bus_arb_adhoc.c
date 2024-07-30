@@ -1207,16 +1207,9 @@ static int update_request_adhoc(uint32_t cl, unsigned int index)
 		goto exit_update_request;
 	}
 
-	if (!strcmp(test_cl, pdata->name))
-		log_transaction = true;
 	MSM_BUS_DBG("%s: cl: %u index: %d curr: %d num_paths: %d\n", __func__,
 		cl, index, client->curr, client->pdata->usecase->num_paths);
 	msm_bus_dbg_client_data(client->pdata, index , cl);
-	ret = update_client_paths(client, log_transaction, index);
-	if (ret) {
-		pr_err("%s: Err updating path\n", __func__);
-		goto exit_update_request;
-	}
 
 	trace_bus_update_request_end(pdata->name);
 
@@ -1237,8 +1230,6 @@ static void free_cl_mem(struct msm_bus_client_handle *cl)
 static int update_bw_adhoc(struct msm_bus_client_handle *cl, u64 ab, u64 ib)
 {
 	int ret = 0;
-	char *test_cl = "test-client";
-	bool log_transaction = false;
 	u64 slp_ib, slp_ab;
 
 	rt_mutex_lock(&msm_bus_adhoc_lock);
