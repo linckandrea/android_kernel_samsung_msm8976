@@ -23,3 +23,9 @@ echo "Build The Good Stuff"
 echo 
 make O=out -j$(nproc --all)
 #make O=out -j1
+
+rm ./AnyKernel3//*.zip
+rm ./AnyKernel3//Image.gz-dtb
+cp ./out/arch/arm64/boot/Image.gz-dtb ./AnyKernel3
+cd ./AnyKernel3
+zip -r9 UPDATE-Armonia-Kernel-"$version"-"$branch"-"$last_commit".zip * -x .git README.md *placeholder
