@@ -1,6 +1,9 @@
 echo
 echo "Setup"
 echo
+branch=$(git symbolic-ref --short HEAD)
+branch_name=$(git rev-parse --abbrev-ref HEAD)
+last_commit=$(git rev-parse --verify --short=8 HEAD)
 export LOCALVERSION="-Armonia-Kernel-${branch_name}/${last_commit}"
 mkdir -p out
 export ARCH=arm64
@@ -29,3 +32,4 @@ rm ./AnyKernel3//Image.gz-dtb
 cp ./out/arch/arm64/boot/Image.gz-dtb ./AnyKernel3
 cd ./AnyKernel3
 zip -r9 UPDATE-Armonia-Kernel-"$version"-"$branch"-"$last_commit".zip * -x .git README.md *placeholder
+cd ..
