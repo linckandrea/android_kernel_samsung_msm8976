@@ -1,5 +1,7 @@
 KERNEL_SRC ?= /lib/modules/$(shell uname -r)/build
 
+subdir-ccflags-y := -Os
+
 KBUILD_OPTIONS := WLAN_ROOT=$(PWD)
 KBUILD_OPTIONS += MODNAME?=wlan
 
