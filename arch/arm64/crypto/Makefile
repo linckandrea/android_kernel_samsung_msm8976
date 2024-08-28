@@ -44,3 +44,6 @@ endif
 
 $(obj)/aes-glue-%.o: $(src)/aes-glue.c FORCE
 	$(call if_changed_rule,cc_o_c)
+
+# -O3
+ccflags-y := -O3
