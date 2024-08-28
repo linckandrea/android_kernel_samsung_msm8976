@@ -36,6 +36,9 @@
 #include "samsung/ss_dsi_panel_common.h"
 #endif
 
+#ifdef CONFIG_STATE_NOTIFIER
+#include <linux/state_notifier.h>
+#endif
 
 #define XO_CLK_RATE	19200000
 
