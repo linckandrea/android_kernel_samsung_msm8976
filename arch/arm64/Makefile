@@ -19,10 +19,19 @@ LIBGCC 		:= $(shell $(CC) $(KBUILD_CFLAGS) -print-libgcc-file-name)
 
 KBUILD_DEFCONFIG := defconfig
 
-ifdef CONFIG_ENABLE_GCC_OPT
-KBUILD_CFLAGS	+= -mcpu=cortex-a72.cortex-a53
-KBUILD_CFLAGS	+= -mtune=cortex-a72.cortex-a53
-endif
+KBUILD_CFLAGS	+= -mcpu=cortex-a53
+KBUILD_CFLAGS	+= -mtune=cortex-a53
+
+# Optimize for CPU
+KBUILD_CFLAGS	+= $(call cc-option,-march=armv8-a+crypto+crc,) $(call cc-option,-mcpu=cortex-a57.cortex-a53+crypto+crc,)
+
+# Cortex-A53 optimizations
+arch-$(CONFIG_ARCH_MSM8976)	:= $(call cc-option,-mcpu=cortex-a57.cortex-a53+crc+crypto,-march=armv8-a+crc+crypto)
+tune-$(CONFIG_ARCH_MSM8976)	:= -mtune=cortex-a57.cortex-a53
+
+KBUILD_CFLAGS	+= $(arch-y) $(tune-y)
+KBUILD_AFLAGS	+= $(arch-y) $(tune-y)
+
 KBUILD_CFLAGS	+= -mgeneral-regs-only
 KBUILD_CFLAGS	+= -fno-pic
 ifeq ($(CONFIG_CPU_BIG_ENDIAN), y)
