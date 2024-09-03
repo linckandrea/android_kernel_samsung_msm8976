@@ -72,6 +72,7 @@
 #include <linux/cpufreq.h>
 #endif
 
+#define KEY_FINGERPRINT 0x2ee
 
 #define VALIDITY_PART_NAME "validity_fingerprint"
 static LIST_HEAD(device_list);
