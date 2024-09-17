@@ -678,3 +678,7 @@ config MMAP_READAROUND_LIMIT
 	  Inappropriate mmap readaround size can hurt device performance
 	  during the sluggish situation. Add the hard upper-limit for
 	  mmap readaround.
+
+config VMSTAT_INTERVAL
+	int "Default interval in seconds to update vmstat"
+	default 1
