@@ -1866,11 +1866,14 @@ static int cifs_truncate_page(struct address_space *mapping, loff_t from)
 
 static void cifs_setsize(struct inode *inode, loff_t offset)
 {
+	loff_t oldsize;
+
 	spin_lock(&inode->i_lock);
+	oldsize = inode->i_size;
 	i_size_write(inode, offset);
 	spin_unlock(&inode->i_lock);
 
-	truncate_pagecache(inode, offset);
+	truncate_pagecache(inode, oldsize, offset);
 }
 
 static int
