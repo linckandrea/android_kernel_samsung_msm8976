@@ -467,6 +467,7 @@ EXPORT_SYMBOL_GPL(nfs_setattr);
  */
 static int nfs_vmtruncate(struct inode * inode, loff_t offset)
 {
+	loff_t oldsize;
 	int err;
 
 	err = inode_newsize_ok(inode, offset);
@@ -474,10 +475,11 @@ static int nfs_vmtruncate(struct inode * inode, loff_t offset)
 		goto out;
 
 	spin_lock(&inode->i_lock);
+	oldsize = inode->i_size;
 	i_size_write(inode, offset);
 	spin_unlock(&inode->i_lock);
 
-	truncate_pagecache(inode, offset);
+	truncate_pagecache(inode, oldsize, offset);
 out:
 	return err;
 }
