@@ -407,7 +407,6 @@ static u64 update_load(int cpu)
 	return now;
 }
 
-#define MAX_LOCAL_LOAD 100
 static void __cpufreq_interactive_timer(unsigned long data, bool is_notif)
 {
 	u64 now;
@@ -492,8 +491,7 @@ static void __cpufreq_interactive_timer(unsigned long data, bool is_notif)
 	this_hispeed_freq = max(tunables->hispeed_freq, ppol->policy->min);
 
 	if (cpu_load >= tunables->go_hispeed_load || tunables->boosted) {
-		if (ppol->target_freq < this_hispeed_freq &&
-		    cpu_load <= MAX_LOCAL_LOAD) {
+		if (ppol->target_freq < this_hispeed_freq) {
 			new_freq = this_hispeed_freq;
 		} else {
 			new_freq = choose_freq(ppol, loadadjfreq);
@@ -508,8 +506,7 @@ static void __cpufreq_interactive_timer(unsigned long data, bool is_notif)
 			new_freq = tunables->hispeed_freq;
 	}
 
-	if (cpu_load <= MAX_LOCAL_LOAD &&
-	    ppol->target_freq >= this_hispeed_freq &&
+	if (ppol->target_freq >= this_hispeed_freq &&
 	    new_freq > ppol->target_freq &&
 	    now - ppol->hispeed_validate_time <
 	    freq_to_above_hispeed_delay(tunables, ppol->target_freq)) {
