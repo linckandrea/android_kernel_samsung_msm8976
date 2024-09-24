@@ -424,7 +424,6 @@
 	};
 
 	cpubw: qcom,cpubw {
-		label = "cpubw";
 		compatible = "qcom,devbw";
 		plain-dev-name;
 		governor = "cpufreq";
@@ -443,7 +442,6 @@
 	};
 
 	mincpubw: qcom,mincpubw {
-		label = "mincpubw";
 		compatible = "qcom,devbw";
 		plain-dev-name;
 		governor = "cpufreq";

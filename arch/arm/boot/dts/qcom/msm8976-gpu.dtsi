@@ -19,7 +19,6 @@
 
 	/* Bus governor */
 	gpubw: qcom,gpubw {
-		label = "gpubw";
 		compatible = "qcom,devbw";
 		plain-dev-name;
 		governor = "bw_vbif";
