@@ -147,6 +147,15 @@ struct cpufreq_interactive_tunables {
 	/* Use agressive frequency step calculation, above a given load threshold */
 	bool fastlane;
 	unsigned int fastlane_threshold;
+
+	/* Ignore hispeed_freq and above_hispeed_delay for notification */
+	bool ignore_hispeed_on_notif;
+
+	/* Ignore min_sample_time for notification */
+	bool fast_ramp_down;
+
+	/* Improves frequency selection for more energy */
+	bool powersave_bias;
 };
 
 /* For cases where we have single governor instance for system */
@@ -418,7 +427,6 @@ static u64 update_load(int cpu)
 	return now;
 }
 
-#define MAX_LOCAL_LOAD 100
 static void __cpufreq_interactive_timer(unsigned long data, bool is_notif)
 {
 	u64 now;
@@ -514,9 +522,10 @@ static void __cpufreq_interactive_timer(unsigned long data, bool is_notif)
 	this_hispeed_freq = max(tunables->hispeed_freq, ppol->policy->min);
 	this_hispeed_freq = min(this_hispeed_freq, ppol->policy->max);
 
-	if (cpu_load >= tunables->go_hispeed_load) {
-		if (ppol->target_freq < this_hispeed_freq &&
-		    cpu_load <= MAX_LOCAL_LOAD) {
+	if (tunables->ignore_hispeed_on_notif && is_notif) {
+		new_freq = choose_freq(ppol, loadadjfreq);
+	} else if (cpu_load >= tunables->go_hispeed_load) {
+		if (ppol->target_freq < this_hispeed_freq) {
 			new_freq = this_hispeed_freq;
 		} else {
 			if (tunables->fastlane && cpu_load > tunables->fastlane_threshold)
@@ -538,7 +547,7 @@ static void __cpufreq_interactive_timer(unsigned long data, bool is_notif)
 			new_freq = tunables->hispeed_freq;
 	}
 
-	if (cpu_load <= MAX_LOCAL_LOAD &&
+	if ((!tunables->ignore_hispeed_on_notif || !is_notif) &&
 	    ppol->target_freq >= this_hispeed_freq &&
 	    new_freq > ppol->target_freq &&
 	    now - ppol->hispeed_validate_time <
@@ -561,7 +570,8 @@ static void __cpufreq_interactive_timer(unsigned long data, bool is_notif)
 
 	new_freq = ppol->freq_table[index].frequency;
 
-	if (!is_notif && new_freq < ppol->target_freq &&
+	if ((!tunables->fast_ramp_down || !is_notif) &&
+	    new_freq < ppol->target_freq &&
 	    now - ppol->max_freq_hyst_start_time <
 	    tunables->max_freq_hysteresis) {
 		trace_cpufreq_interactive_notyet(max_cpu, cpu_load,
@@ -574,8 +584,9 @@ static void __cpufreq_interactive_timer(unsigned long data, bool is_notif)
 	 * Do not scale below floor_freq unless we have been at or above the
 	 * floor frequency for the minimum sample time since last validated.
 	 */
-	if (new_freq < ppol->floor_freq) {
-		if (!is_notif && now - ppol->floor_validate_time <
+	if ((!tunables->fast_ramp_down || !is_notif) &&
+	    new_freq < ppol->floor_freq) {
+		if (now - ppol->floor_validate_time <
 				tunables->min_sample_time) {
 			trace_cpufreq_interactive_notyet(
 				max_cpu, cpu_load, ppol->target_freq,
@@ -639,6 +650,8 @@ static int cpufreq_interactive_speedchange_task(void *data)
 	cpumask_t tmp_mask;
 	unsigned long flags;
 	struct cpufreq_interactive_policyinfo *ppol;
+	struct cpufreq_interactive_tunables *tunables;
+	bool display_on = is_display_on();
 
 	while (1) {
 		set_current_state(TASK_INTERRUPTIBLE);
@@ -662,6 +675,7 @@ static int cpufreq_interactive_speedchange_task(void *data)
 
 		for_each_cpu(cpu, &tmp_mask) {
 			ppol = per_cpu(polinfo, cpu);
+			tunables = ppol->policy->governor_data;
 			if (!down_read_trylock(&ppol->enable_sem))
 				continue;
 			if (!ppol->governor_enabled) {
@@ -669,10 +683,16 @@ static int cpufreq_interactive_speedchange_task(void *data)
 				continue;
 			}
 
-			if (ppol->target_freq != ppol->policy->cur)
-				__cpufreq_driver_target(ppol->policy,
-							ppol->target_freq,
-							CPUFREQ_RELATION_H);
+			if (ppol->target_freq != ppol->policy->cur) {
+			    if (tunables->powersave_bias || !display_on)
+				    __cpufreq_driver_target(ppol->policy,
+							    ppol->target_freq,
+							    CPUFREQ_RELATION_C);
+			    else
+				    __cpufreq_driver_target(ppol->policy,
+							    ppol->target_freq,
+							    CPUFREQ_RELATION_H);
+			}
 			trace_cpufreq_interactive_setspeed(cpu,
 						     ppol->target_freq,
 						     ppol->policy->cur);
@@ -932,6 +952,8 @@ static ssize_t store_##file_name(					\
 }
 show_store_one(max_freq_hysteresis);
 show_store_one(align_windows);
+show_store_one(ignore_hispeed_on_notif);
+show_store_one(fast_ramp_down);
 
 static ssize_t show_go_hispeed_load(struct cpufreq_interactive_tunables
 		*tunables, char *buf)
@@ -1248,6 +1270,25 @@ static ssize_t store_fastlane_threshold(
 	return count;
 }
 
+static ssize_t show_powersave_bias(struct cpufreq_interactive_tunables *tunables,
+		char *buf)
+{
+	return sprintf(buf, "%u\n", tunables->powersave_bias);
+}
+
+static ssize_t store_powersave_bias(struct cpufreq_interactive_tunables *tunables,
+		const char *buf, size_t count)
+{
+	int ret;
+	unsigned long val;
+
+	ret = kstrtoul(buf, 0, &val);
+	if (ret < 0)
+		return ret;
+	tunables->powersave_bias = val;
+	return count;
+}
+
 /*
  * Create show/store routines
  * - sys: One governor instance for complete SYSTEM
@@ -1298,14 +1339,17 @@ show_store_gov_pol_sys(max_freq_hysteresis);
 show_store_gov_pol_sys(align_windows);
 show_store_gov_pol_sys(fastlane);
 show_store_gov_pol_sys(fastlane_threshold);
+show_store_gov_pol_sys(ignore_hispeed_on_notif);
+show_store_gov_pol_sys(fast_ramp_down);
+show_store_gov_pol_sys(powersave_bias);
 
 #define gov_sys_attr_rw(_name)						\
 static struct global_attr _name##_gov_sys =				\
-__ATTR(_name, 0644, show_##_name##_gov_sys, store_##_name##_gov_sys)
+__ATTR(_name, 0664, show_##_name##_gov_sys, store_##_name##_gov_sys)
 
 #define gov_pol_attr_rw(_name)						\
 static struct freq_attr _name##_gov_pol =				\
-__ATTR(_name, 0644, show_##_name##_gov_pol, store_##_name##_gov_pol)
+__ATTR(_name, 0664, show_##_name##_gov_pol, store_##_name##_gov_pol)
 
 #define gov_sys_pol_attr_rw(_name)					\
 	gov_sys_attr_rw(_name);						\
@@ -1325,6 +1369,9 @@ gov_sys_pol_attr_rw(max_freq_hysteresis);
 gov_sys_pol_attr_rw(align_windows);
 gov_sys_pol_attr_rw(fastlane);
 gov_sys_pol_attr_rw(fastlane_threshold);
+gov_sys_pol_attr_rw(ignore_hispeed_on_notif);
+gov_sys_pol_attr_rw(fast_ramp_down);
+gov_sys_pol_attr_rw(powersave_bias);
 
 /* One Governor instance for entire system */
 static struct attribute *interactive_attributes_gov_sys[] = {
@@ -1342,6 +1389,9 @@ static struct attribute *interactive_attributes_gov_sys[] = {
 	&align_windows_gov_sys.attr,
 	&fastlane_gov_sys.attr,
 	&fastlane_threshold_gov_sys.attr,
+	&ignore_hispeed_on_notif_gov_sys.attr,
+	&fast_ramp_down_gov_sys.attr,
+	&powersave_bias_gov_sys.attr,
 	NULL,
 };
 
@@ -1366,6 +1416,9 @@ static struct attribute *interactive_attributes_gov_pol[] = {
 	&align_windows_gov_pol.attr,
 	&fastlane_gov_pol.attr,
 	&fastlane_threshold_gov_pol.attr,
+	&ignore_hispeed_on_notif_gov_pol.attr,
+	&fast_ramp_down_gov_pol.attr,
+	&powersave_bias_gov_pol.attr,
 	NULL,
 };
 
