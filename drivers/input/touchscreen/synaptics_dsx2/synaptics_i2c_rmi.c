@@ -107,13 +107,7 @@ static ssize_t synaptics_rmi4_0dbutton_show(struct device *dev,
 static ssize_t synaptics_rmi4_0dbutton_store(struct device *dev,
 		struct device_attribute *attr, const char *buf, size_t count);
 
-#ifdef CONFIG_TOUCHSCREEN_SYNAPTICS_WAKE_GESTURES
-static ssize_t synaptics_rmi4_wake_gesture_show(struct device *dev,
-		struct device_attribute *attr, char *buf);
 
-static ssize_t synaptics_rmi4_wake_gesture_store(struct device *dev,
-		struct device_attribute *attr, const char *buf, size_t count);
-#endif
 
 static DEVICE_ATTR(full_pm_cycle, (S_IRUGO | S_IWUSR | S_IWGRP),
 			synaptics_rmi4_full_pm_cycle_show, synaptics_rmi4_full_pm_cycle_store);
@@ -126,7 +120,6 @@ static DEVICE_ATTR(productinfo, S_IRUGO, synaptics_rmi4_f01_productinfo_show, NU
 static DEVICE_ATTR(buildid, S_IRUGO, synaptics_rmi4_f01_buildid_show, NULL);
 static DEVICE_ATTR(flashprog, S_IRUGO, synaptics_rmi4_f01_flashprog_show, NULL);
 static DEVICE_ATTR(0dbutton, (S_IRUGO | S_IWUSR | S_IWGRP), synaptics_rmi4_0dbutton_show, synaptics_rmi4_0dbutton_store);
-static DEVICE_ATTR(wake_gesture, (S_IRUGO | S_IWUSR | S_IWGRP), synaptics_rmi4_wake_gesture_show, synaptics_rmi4_wake_gesture_store);
 
 static struct attribute *attrs[] = {
 	&dev_attr_full_pm_cycle.attr,
@@ -446,35 +439,6 @@ static ssize_t synaptics_rmi4_0dbutton_store(struct device *dev,
 
 	return count;
 }
-
-#ifdef CONFIG_TOUCHSCREEN_SYNAPTICS_WAKE_GESTURES
-static ssize_t synaptics_rmi4_wake_gesture_show(struct device *dev,
-		struct device_attribute *attr, char *buf)
-{
-	struct synaptics_rmi4_data *rmi4_data = dev_get_drvdata(dev);
-
-	return snprintf(buf, PAGE_SIZE, "%u\n",
-			rmi4_data->wake_gesture_enabled);
-}
-
-static ssize_t synaptics_rmi4_wake_gesture_store(struct device *dev,
-		struct device_attribute *attr, const char *buf, size_t count)
-{
-	int retval;
-	unsigned int wake_gesture;
-	struct synaptics_rmi4_data *rmi4_data = dev_get_drvdata(dev);
-
-	if (sscanf(buf, "%u", &wake_gesture) != 1)
-		return -EINVAL;
-
-	if (wake_gesture > 1)
-		return -EINVAL;
-
-	rmi4_data->wake_gesture_enabled = wake_gesture;
-
-	return count;
-}
-#endif
 
 #if defined RESET_BY_WORKQUEUE
 static void reset_func(struct work_struct *work)
@@ -1011,9 +975,6 @@ static int synaptics_rmi4_f11_abs_report(struct synaptics_rmi4_data *rmi4_data,
 static int synaptics_rmi4_f12_abs_report(struct synaptics_rmi4_data *rmi4_data,
 		struct synaptics_rmi4_fn *fhandler)
 {
-#ifdef CONFIG_TOUCHSCREEN_SYNAPTICS_WAKE_GESTURES
-	static unsigned long oldJiffies = 0;
-#endif
 	int retval;
 	unsigned char touch_count = 0;
 	unsigned char finger;
@@ -1261,26 +1222,6 @@ static int synaptics_rmi4_f12_abs_report(struct synaptics_rmi4_data *rmi4_data,
 	if (!touch_count)
 		input_booster_send_event(BOOSTER_DEVICE_TOUCH, BOOSTER_MODE_OFF);
 #endif
-
-#ifdef CONFIG_TOUCHSCREEN_SYNAPTICS_WAKE_GESTURES
-	if (rmi4_data->wake_gesture_enabled == 1 && touch_count == 1 && new_finger_pressed) {
-		unsigned long newJiffies = jiffies;
-
-		if ((newJiffies - oldJiffies) < 50) {
-		
-			tsp_debug_info(true, &rmi4_data->i2c_client->dev,
-					"[%d][W] Wake gesture\n", finger);
-		
-			input_report_key(rmi4_data->input_dev, KEY_POWER, 1);
-			input_sync(rmi4_data->input_dev);
-			msleep(10);
-			input_report_key(rmi4_data->input_dev, KEY_POWER, 0);
-			input_sync(rmi4_data->input_dev);
-		}
-		oldJiffies = newJiffies;
-	}
-#endif
-
 	return touch_count;
 }
 
@@ -3360,9 +3301,6 @@ static int synaptics_rmi4_set_input_device(struct synaptics_rmi4_data *rmi4_data
 	set_bit(EV_ABS, rmi4_data->input_dev->evbit);
 	set_bit(BTN_TOUCH, rmi4_data->input_dev->keybit);
 	set_bit(BTN_TOOL_FINGER, rmi4_data->input_dev->keybit);
-#ifdef CONFIG_TOUCHSCREEN_SYNAPTICS_WAKE_GESTURES
-	set_bit(KEY_POWER, rmi4_data->input_dev->keybit);
-#endif
 
 	input_set_abs_params(rmi4_data->input_dev,
 			ABS_MT_POSITION_X, 0,
@@ -4014,7 +3952,6 @@ static int synaptics_rmi4_setup_drv_data(struct i2c_client *client)
 	rmi4_data->sensor_sleep = false;
 	rmi4_data->irq_enabled = false;
 	rmi4_data->tsp_probe = false;
-	rmi4_data->wake_gesture_enabled = 0;
 	rmi4_data->rebootcount = 0;
 	rmi4_data->panel_revision = rmi4_data->board->panel_revision;
 	rmi4_data->i2c_read = synaptics_rmi4_i2c_read;

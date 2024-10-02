@@ -62,7 +62,3 @@ config TOUCHSCREEN_SYNAPTICS_DSX_FW_UPDATE_v21
 	  module will be called synaptics_dsx_fw_update.
 
 endif
-
-config TOUCHSCREEN_SYNAPTICS_WAKE_GESTURES
-        bool "Wake gestures interface for SYNAPTICS_DSX based touchscreens"
-        default y
