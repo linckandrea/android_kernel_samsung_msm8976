@@ -19,7 +19,7 @@ export CROSS_COMPILE="$HOME"/Android-dev/toolchains/aosp-clang/aarch64-linux-and
 echo
 echo "Set DEFCONFIG"
 echo 
-make O=out gts210velte_defconfig
+make O=out gts210velte_full_defconfig
 
 echo
 echo "Build The Good Stuff"
